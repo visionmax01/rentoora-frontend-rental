@@ -59,7 +59,7 @@ const NavBar = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      axios.get('http://localhost:7000/auth/profile', {
+      axios.get('https://rentoora-backend-rental.onrender.com/auth/profile', {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((response) => {
@@ -77,7 +77,7 @@ const NavBar = () => {
 
   const fetchProfilePhoto = (profilePhotoPath) => {
     axios
-      .get(`http://localhost:7000/${profilePhotoPath}`, { responseType: "arraybuffer" })
+      .get(`https://rentoora-backend-rental.onrender.com/${profilePhotoPath}`, { responseType: "arraybuffer" })
       .then((response) => {
         const imageBlob = new Blob([response.data], { type: response.headers["content-type"] });
         const imageUrl = URL.createObjectURL(imageBlob);

@@ -1,14 +1,41 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import './App.css';
-import './index.css';
-import { Toaster} from 'react-hot-toast';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
+import "./App.css";
+import "./index.css";
+import { Toaster } from "react-hot-toast";
 import Homepage from "./Components/homePage/homepage.jsx";
 import Developer from "./Components/homePage/develober.jsx";
 import AboutUs from "./Components/homePage/about.jsx";
 import OurServices from "./Components/homePage/ourServices.jsx";
-import AxiosInterceptorComponent from './utils/AxiosInterceptorComponent.jsx'; 
-
+import RentalServiceDisplay from './Components/homePage/rentalServiceDisplay.jsx'
+import BookedOrder from './Components/homePage/BookedOrderststus.jsx'
+import SingleViewRentals from './Components/homePage/SingleViewRentals.jsx'
+import SearchResult from './Components/homePage/SearchResult.jsx'
+//uitls imports
+import AxiosInterceptorComponent from "./utils/AxiosInterceptorComponent.jsx";
+import AdminProtectedRoute from "./utils/AdminProtectedRoute.jsx";
+//import admin pages
+import AdminDashboard from "./AdminSide/AdminDashboard.jsx";
+import AdminProfile from './AdminSide/adminProfile.jsx'
+import ClientList from './AdminSide/ClientList.jsx'
+import DisplayClientPosts from './AdminSide/DisplayClientPosts.jsx'
+import AdminChangepass from './AdminSide/AdminChangepass.jsx'
+//import authFiles
+import Login from './authfiles/Login.jsx'
+import Register from './authfiles/Register.jsx'
+import ResetPasswordFlow from './authfiles/ResetPasswordFlow.jsx'
+//import client/user side 
+import ProtectedRoute from './utils/ProtectedRoute.jsx'
+import ClientProfile from './ClientSide/clientProfile.jsx'
+import ClientDashHome from './ClientSide/clientDashHome.jsx'
+import ChangePassword from './ClientSide/ChangePassword.jsx'
+import ReceivedOrders from  './ClientSide/ReceivedOrders.jsx'
+import MyOrders from './Myorder/MyOrders.jsx'
 function App() {
   return (
     <>
@@ -21,6 +48,32 @@ function App() {
             <Route path="/developer" element={<Developer />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/service" element={<OurServices />} />
+            <Route path="/client-login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/reset-pass" element={<ResetPasswordFlow />} />
+            <Route path="/rental-service" element={<RentalServiceDisplay />} />
+            <Route path="/rental/:postId" element={<SingleViewRentals />} />
+            <Route path="/booked-order" element={<BookedOrder />} />
+            <Route path="/Search/:searchTerm" element={<SearchResult />} />
+
+
+            {/* Protected routes for client users */}
+            <Route element={<ProtectedRoute allowedRoles={[0]} />}>
+              <Route path="/client-dashboard" element={<ClientDashHome />} />
+              <Route path="/client-profile" element={<ClientProfile />} />
+              <Route path="/change-password" element={<ChangePassword />} />
+              <Route path="/user-orders" element={<MyOrders />} />
+              <Route path="/order-recieved" element={<ReceivedOrders />} />
+            </Route>
+
+            {/* Admin protected routes */}
+            <Route element={<AdminProtectedRoute allowedRoles={[1]} />}>
+              <Route path="/admin-profile" element={<AdminProfile />} />
+              <Route path="/admin-change-password" element={<AdminChangepass />}/>
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/client-list" element={<ClientList />} />
+              <Route path="/client-posts" element={<DisplayClientPosts />} />
+            </Route>
 
             {/* Catch-all route */}
             <Route path="*" element={<Navigate to="/" replace />} />
@@ -32,12 +85,12 @@ function App() {
         toastOptions={{
           duration: 5000,
           style: {
-            borderRadius: '0.2rem',
-            padding: '1rem',
-            background: 'green',
-            color: '#fff',
-            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-            marginTop: '1rem',
+            borderRadius: "0.2rem",
+            padding: "1rem",
+            background: "green",
+            color: "#fff",
+            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+            marginTop: "1rem",
           },
         }}
       />
