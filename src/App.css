@@ -1,0 +1,30 @@
+:root{
+  --BlackColor:#000000;
+  --bodyColor:#180f27;
+}
+
+
+body{
+  box-sizing: border-box;
+
+}
+.glow-shadow {
+  position: relative;
+  display: inline-block;
+}
+
+.glow-shadow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  box-shadow: 0 0 20px 5px rgba(255, 3, 3, 0.5);
+  pointer-events: none;
+}
+
+
+
+
