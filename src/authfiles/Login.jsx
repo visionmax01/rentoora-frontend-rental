@@ -13,49 +13,62 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const message = location.state?.message || ''; 
+  const message = location.state?.message || ''; // If there's a message from redirected page
 
   // Check if user is already logged in
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/client-dashboard'); 
+      navigate('/client-dashboard'); // Redirect if user is already logged in
     }
-    
+
     if (message) {
-      toast.error(message);
+      toast.error(message); // Display error message from previous page
     }
   }, [navigate, message]);
 
+  // Form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(''); // Clear error on submit
+    setError(''); // Clear previous errors
+
     try {
+      // Send login request to the server
       const response = await axios.post('https://rentoora-backend-rental.onrender.com/auth/login', { email, password });
       console.log('Response from server:', response.data);
-  
-      if (response.data.token && response.data.result?.userId) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('userId', response.data.result.userId);
-        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-        navigate(response.data.redirectUrl || '/client-dashboard');
+
+      const { token, result } = response.data;
+      const { role } = result;
+
+      // If token and user ID exist in response, store them and set authorization headers
+      if (token && result?.userId) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('userId', result.userId);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+        // Role-based navigation: redirect to appropriate dashboard
+        if (role === 1) {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/');
+        }
       } else {
-        setError('Invalid response from server.'); // If token or userId is missing
+        setError('Invalid response from server.');
       }
     } catch (error) {
       console.log('Error:', error);
       setError(error.response?.data?.message || 'An error occurred');
     } finally {
-      setLoading(false);
+      setLoading(false); // Stop loading spinner
     }
   };
 
   return (
-    <div className="min-h-screen  bg-gray-100 flex flex-col justify-center sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 flex flex-col justify-center sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <img src={Mainlogo1} className="h-12 m-auto rounded-lg " alt="" />
-        <img src={Mainlogo} className="h-12 m-auto" alt="" />
+        <img src={Mainlogo1} className="h-12 m-auto rounded-lg" alt="Main logo" />
+        <img src={Mainlogo} className="h-12 m-auto" alt="Rentoora logo" />
         <h2 className="text-center text-3xl font-extrabold text-gray-900">
           Sign in to your account
         </h2>
@@ -100,10 +113,10 @@ const Login = () => {
                 />
               </div>
               <div className="text-right mt-1">
-                <Link to="/reset-pass" className=" text-red-700 text-right hover:underline">Forget Password?</Link>
+                <Link to="/reset-pass" className="text-red-700 text-right hover:underline">Forget Password?</Link>
               </div>
             </div>
-             
+
             <div>
               <button
                 type="submit"

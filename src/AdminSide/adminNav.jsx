@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { FaSpinner } from "react-icons/fa";
 import manpng from "../assets/img/man.png";
 import { Link } from "react-router-dom";
-import { User } from "lucide-react";
 
 const AdminNav = () => {
   const [user, setUser] = useState(null);
   const [profilePhoto, setProfilePhoto] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false); // State for dropdown
+  const [dropdownOpen, setDropdownOpen] = useState(false); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,24 +27,12 @@ const AdminNav = () => {
       }
     };
 
-    const fetchProfilePhoto = async (profilePhotoPath) => {
-      try {
-        const response = await axios.get(
-          `https://rentoora-backend-rental.onrender.com/${profilePhotoPath}`,
-          {
-            responseType: "blob",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        const imageUrl = URL.createObjectURL(response.data);
-        setProfilePhoto(imageUrl);
-      } catch (error) {
-        console.error("Error fetching profile photo:", error);
-      }
+    const fetchProfilePhoto = (profilePhotoPath) => {
+      if (!profilePhotoPath) return;
+    
+      // Directly use the Cloudinary URL to set the profile photo
+      setProfilePhoto(profilePhotoPath);
     };
-
     fetchUserData();
   }, [navigate]);
 
@@ -79,9 +65,10 @@ const AdminNav = () => {
       <div className="flex justify-between items-center lg:mb-6 bg-brand-lightGrow md:rounded-lg p-4 ">
         <h1 className="md:text-2xl  text-white font-bold uppercase">Admin Dashboard</h1>
 
+        <div className="flex gap-4">
         <div
           onClick={toggleDropdown}
-          className=" items-center cursor-pointer flex gap-4"
+          className=" items-center cursor-pointer "
         >
           {profilePhoto ? (
             <img
@@ -96,7 +83,8 @@ const AdminNav = () => {
               alt="Default"
             />
           )}
-          <button
+        </div>
+        <button
             onClick={handleLogout}
             className="bg-red-500 hover:bg-red-700 text-white  font-bold md:h-10 py-1 md:px-4 px-2 rounded"
           >

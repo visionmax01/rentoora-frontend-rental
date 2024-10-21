@@ -34,6 +34,7 @@ const About = () => {
         </div>
             <i class="fa-sharp-duotone fa-solid fa-bookmark absolute  right-4 -top-1.5 text-2xl"></i>
           <img
+            srcSet=""
             src={RoomIcon}
             alt="Rental Services"
             className="h-32 w-48 rounded object-fit mb-4"
@@ -52,6 +53,7 @@ const About = () => {
          </div>
             <i class="fa-sharp-duotone fa-solid fa-bookmark absolute  right-4 -top-1.5 text-2xl"></i>
           <img
+            srcSet=""
             src={Electrician}
             alt="Electrician Booking"
             className="h-32 w-48 rounded object-cover mb-4"
@@ -71,6 +73,7 @@ const About = () => {
             <i class="fa-sharp-duotone fa-solid fa-bookmark absolute  right-4 -top-1.5 text-2xl"></i>
           <img
             src={SellPhone}
+            srcSet=""
             alt="Old Phones"
             className="h-32 w-48 rounded object-cover mb-4"
           />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import Mainlogo from '../assets/img/Main_logo.png';
@@ -9,7 +9,7 @@ import axios from "axios";
 const NavBar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false); // State for profile menu
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false); 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(defaultProfilePic);
   const navigate = useNavigate();
@@ -19,9 +19,6 @@ const NavBar = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
-  const handleLoginRedirection = () => {
-    navigate("/login-user");
-  };
 
   const HomePageRedirection = () => {
     navigate("/");
@@ -66,6 +63,7 @@ const NavBar = () => {
           const user = response.data;
           setIsLoggedIn(true);
           fetchProfilePhoto(response.data.profilePhotoPath);
+
         })
         .catch(() => {
           setIsLoggedIn(false);
@@ -76,25 +74,17 @@ const NavBar = () => {
   }, []);
 
   const fetchProfilePhoto = (profilePhotoPath) => {
-    axios
-      .get(`https://rentoora-backend-rental.onrender.com/${profilePhotoPath}`, { responseType: "arraybuffer" })
-      .then((response) => {
-        const imageBlob = new Blob([response.data], { type: response.headers["content-type"] });
-        const imageUrl = URL.createObjectURL(imageBlob);
-        setProfilePhoto(imageUrl);
-      })
-      .catch((error) => {
-        console.log("Error fetching profile photo:", error);
-      });
+    if (!profilePhotoPath) return;
+    setProfilePhoto(profilePhotoPath);
   };
 
   return (
     <div className="sticky top-0 z-50">
-      <nav className="w-full bg-gradient-to-r to-brand-navbg from-blue-900 border-b-4 border-blue3-600 flex items-center relative">
-        <div className="flex justify-between items-center w-full px-4 md:px-12">
+      <nav className="w-full bg-gradient-to-r py-2 to-brand-navbg from-blue-900 border-b-4 border-blue3-600 flex items-center relative">
+        <div className="flex justify-end items-center w-full px-4 md:px-12">
           <img
             onClick={HomePageRedirection}
-            className="cursor-pointer font-extrabold text-yellow-400 flex h-12"
+            className="absolute left-6 cursor-pointer font-extrabold text-yellow-400 flex h-12"
             src={Mainlogo}
             alt="Main Logo"
           />
@@ -130,9 +120,9 @@ const NavBar = () => {
               <div className="relative  ">
                 <img
                   src={profilePhoto}
-                  alt="User Profile"
+                  alt="pic"
                   className="h-8 w-8 object-cover border-2 border-yellow-600  rounded-full cursor-pointer"
-                  onClick={toggleProfileMenu} // Toggle profile menu on click
+                  onClick={toggleProfileMenu} 
                 />
                 {isProfileMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg">
@@ -166,40 +156,57 @@ const NavBar = () => {
                 )}
               </div>
             ) : (
-              <li
-                onClick={toggleDropdown}
+              <Link
+                to='/client-login'
                 className="relative bg-white text-black py-1 px-4 rounded-sm hover:bg-brand-lightGrow cursor-pointer transform-width duration-300 hover:ease-in-out"
               >
                 Login
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg">
-                    <ul>
-                      <li
-                        onClick={() => {
-                          handleLoginRedirection();
-                          setIsDropdownOpen(false);
-                        }}
-                        className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                      >
-                        User Login
-                      </li>
-                      <li
-                        onClick={() => {
-                          navigate("/client-login");
-                          setIsDropdownOpen(false);
-                        }}
-                        className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                      >
-                        Client Login
-                      </li>
-                    </ul>
-                  </div>
-                )}
-              </li>
+              </Link>
             )}
           </ul>
 
           {/* Mobile View */}
+          <div className="flex gap-4">
+          {isLoggedIn && ( // Only render this div if the user is logged in
+        <div className="relative lg:hidden">
+          <img
+            src={profilePhoto}
+            alt="User Profile"
+            className="h-8 w-8 object-cover border-2 border-yellow-600 rounded-full cursor-pointer"
+            onClick={toggleProfileMenu}
+          />
+          {isProfileMenuOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg">
+              <ul className="flex flex-col">
+                <li
+                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                  onClick={() => {
+                    navigate("/client-profile");
+                    setIsProfileMenuOpen(false);
+                  }}
+                >
+                  Profile
+                </li>
+                <li
+                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                  onClick={() => {
+                    navigate("/client-dashboard");
+                    setIsProfileMenuOpen(false);
+                  }}
+                >
+                  Dashboard
+                </li>
+                <li
+                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                  onClick={logout}
+                >
+                  Logout
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+         )}
           <div className="md:hidden" onClick={toggleDrawer}>
             {isDrawerOpen ? (
               <CloseIcon className="h-6 w-6 text-white cursor-pointer" />
@@ -207,6 +214,8 @@ const NavBar = () => {
               <MenuIcon className="h-6 w-6 text-white cursor-pointer" />
             )}
           </div>
+          </div>
+
         </div>
       </nav>
 
@@ -262,36 +271,13 @@ const NavBar = () => {
           >
             Developer
           </li>
-          <li
-            onClick={toggleDropdown}
+          <Link
+            to="/client-login"
             className="relative bg-brand-dark hover:bg-blue-500 bg-opacity-70 rounded-sm py-1 px-4 cursor-pointer transform translate-right duration-300 ease-in-out"
           >
             Login
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 py-1 md:w-48 w-42 bg-white text-black shadow-lg md:rounded-md">
-                <ul>
-                  <li
-                    onClick={() => {
-                      handleLoginRedirection();
-                      setIsDropdownOpen(false);
-                    }}
-                    className="px-4 py-2 cursor-pointer hover:bg-red-700 hover:rounded-md"
-                  >
-                    User Login
-                  </li>
-                  <li
-                    onClick={() => {
-                      navigate("/client-login");
-                      setIsDropdownOpen(false);
-                    }}
-                    className="px-4 py-2 cursor-pointer hover:bg-red-700 hover:rounded-md"
-                  >
-                    Client Login
-                  </li>
-                </ul>
-              </div>
-            )}
-          </li>
+           
+          </Link>
         </ul>
       </div>
     </div>

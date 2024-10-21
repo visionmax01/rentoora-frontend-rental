@@ -132,15 +132,15 @@ const ServicesSupport = () => {
   };
 
   return (
-    <div className="container mx-auto p-6  bg-brand-bgColor h-auto">
-      <div className="gap-4">
+    <div className="container mx-auto  lg:p-8 bg-brand-bgColor overflow-y-auto   h-screen">
+      <div className="gap-4 ">
 
         {/* Create Ticket Form */}
-        <form onSubmit={handleCreateTicket} className="mb-8 lg:w-1/2 w-full">
-      <h1 className="text-3xl font-bold mb-4 w-full">Support Page</h1>
+        <form onSubmit={handleCreateTicket} className="mb-8 lg:w-1/2 w-full p-4 lg:p-0">
+             <h1 className="text-3xl font-bold mb-4 w-full">Support Page</h1>
 
           <div className="mb-4">
-            <label htmlFor="issueType" className="block text-sm font-medium text-gray-300">
+            <label htmlFor="issueType" className="block text-sm font-medium ">
               Issue Type
             </label>
             <input
@@ -153,7 +153,7 @@ const ServicesSupport = () => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="message" className="block text-sm font-medium text-gray-300">
+            <label htmlFor="message" className="block text-sm font-medium ">
               Message
             </label>
             <textarea
@@ -184,7 +184,7 @@ const ServicesSupport = () => {
               {tickets.length === 0 ? (
                 <p>No tickets found.</p>
               ) : (
-                <ul className='flex flex-col gap-12'>
+                <ul className='flex flex-col lg:flex-row gap-12'>
                   {tickets.map((ticket) => (
                     <li key={ticket._id} className="border-2 border-white relative w-72 mt-6 bg-white text-gray-600 rounded p-4 shadow-lg transition-transform transform hover:scale-105">
                       <div className="bg-blue-500 py-1 text-center text-white rounded">

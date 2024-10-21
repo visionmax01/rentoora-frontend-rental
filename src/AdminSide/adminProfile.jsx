@@ -13,7 +13,7 @@ const AdminProfile = () => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [citizenshipImagePath, setDocumentePhoto] = useState(null);
   const [editingField, setEditingField] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // New state for loading
+  const [isLoading, setIsLoading] = useState(true);
 
   const [details, setDetails] = useState({
     name: "",
@@ -64,29 +64,17 @@ const AdminProfile = () => {
   }, []);
 
   const fetchProfilePhoto = (profilePhotoPath) => {
-    axios
-      .get(`https://rentoora-backend-rental.onrender.com/${profilePhotoPath}`, { responseType: "arraybuffer" })
-      .then((response) => {
-        const imageBlob = new Blob([response.data], { type: response.headers["content-type"] });
-        const imageUrl = URL.createObjectURL(imageBlob);
-        setProfilePhoto(imageUrl);
-      })
-      .catch((error) => {
-        console.log("Error fetching profile photo:", error);
-      });
+    if (!profilePhotoPath) return;
+  
+    // Directly use the Cloudinary URL to set the profile photo
+    setProfilePhoto(profilePhotoPath);
   };
 
   const fetchDocumentPhoto = (citizenshipImagePath) => {
-    axios
-      .get(`https://rentoora-backend-rental.onrender.com/${citizenshipImagePath}`, { responseType: "arraybuffer" })
-      .then((response) => {
-        const imageBlob = new Blob([response.data], { type: response.headers["content-type"] });
-        const imageUrl = URL.createObjectURL(imageBlob);
-        setDocumentePhoto(imageUrl);
-      })
-      .catch((error) => {
-        console.log("Error fetching document photo:", error);
-      });
+    if (!citizenshipImagePath) return;
+     // Directly use the Cloudinary URL to set the profile photo
+     setDocumentePhoto(citizenshipImagePath);
+    
   };
 
   const handleEdit = (field) => {
@@ -106,7 +94,7 @@ const AdminProfile = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      toast.success(`${editingField} updated successfully!`); // Show success toast
+      toast.success(`${editingField} updated successfully!`);
       setEditingField(null);
       const response = await axios.get("https://rentoora-backend-rental.onrender.com/auth/user-data", {
         headers: {
@@ -294,7 +282,7 @@ const AdminProfile = () => {
       {/* Image Preview Popup (optional) */}
       {isImagePreviewOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg relative">
+          <div className="bg-white mx-2 lg:p-4 rounded-lg relative">
             <button
               onClick={handleImagePreviewClose}
               className="absolute top-0 right-0"
@@ -304,7 +292,7 @@ const AdminProfile = () => {
             <img
               src={citizenshipImagePath}
               alt="Document Preview"
-              className="w-[45vw] h-[30vw]"
+              className="lg:w-[45vw] lg:h-[30vw]"
             />
           </div>
         </div>

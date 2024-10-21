@@ -44,18 +44,18 @@ function OrderPopup({ order, onClose }) {
   };
 
   // Set the preview image to the first image when the component mounts
-  useEffect(() => {
-    if (order.postId?.images && order.postId.images.length > 0) {
-      setPreviewImage(
-        `https://rentoora-backend-rental.onrender.com/${order.postId.images[0]}`
-      );
-    }
-  }, [order]);
+useEffect(() => {
+  if (order.postId?.images && order.postId.images.length > 0) {
+    // Use the image URL directly from Cloudinary without prepending the local server URL
+    setPreviewImage(order.postId.images[0]); // Assuming images are stored as full URLs
+  }
+}, [order]);
 
-  // Function to handle thumbnail click
-  const handleThumbnailClick = (image) => {
-    setPreviewImage(`https://rentoora-backend-rental.onrender.com/${image}`);
-  };
+// Function to handle thumbnail click
+const handleThumbnailClick = (image) => {
+  setPreviewImage(image); // Use the image URL directly
+};
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 text-black">
@@ -78,7 +78,7 @@ function OrderPopup({ order, onClose }) {
                 order.postId.images.map((image, index) => (
                   <img
                     key={index}
-                    src={`https://rentoora-backend-rental.onrender.com/${image}`}
+                    src={image}
                     alt={`Post Image ${index + 1}`}
                     className="w-12 h-12 object-cover rounded-md border border-gray-200 cursor-pointer"
                     onClick={() => handleThumbnailClick(image)}

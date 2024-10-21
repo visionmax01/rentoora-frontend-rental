@@ -76,21 +76,21 @@ const SearchResult = () => {
   if (error) return <div className="text-red-500 text-center">{error}</div>;
 
   return (
-    <div className="container mx-auto bg-white p-6">
+    <div className="container mx-auto  bg-white p-6 w-[85%] lg:w-full">
 
       {/* Search Input and Filter */}
-      <div className="flex justify-center mb-4">
+      <div className="flex  justify-center mb-4">
         <input
           type="text"
           value={searchInput}
           onChange={handleSearchInputChange}
           placeholder="Search by location..."
-          className="border rounded-lg px-4 py-2 w-64"
+          className="border rounded-lg px-4 py-2 lg:w-64 w-44"
         />
         <select
           value={propertyType}
           onChange={handlePropertyTypeChange}
-          className="border rounded-lg px-4 py-2 ml-2"
+          className="border rounded-lg px-2 py-2 ml-2"
         >
           <option value="">All Types</option>
           <option value="room">Room</option>
@@ -101,7 +101,7 @@ const SearchResult = () => {
           onClick={handleSearchClick}
           className="bg-blue-500 text-white px-4 py-2 rounded ml-2 hover:bg-blue-600"
         >
-          Search
+          <i class="fa-solid fa-magnifying-glass"></i>
         </button>
       </div>
 

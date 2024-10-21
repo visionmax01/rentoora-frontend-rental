@@ -259,7 +259,7 @@ const RentalServiceDisplay = () => {
                   <div>
                     {Array.isArray(post.images) && post.images.length > 0 ? (
                       <img
-                        src={`https://rentoora-backend-rental.onrender.com/${post.images[0]}`}
+                        src={post.images[0]}
                         alt={post.postType}
                         className="w-full h-32 object-cover rounded-t-lg "
                       />

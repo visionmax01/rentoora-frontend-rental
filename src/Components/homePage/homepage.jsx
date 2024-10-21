@@ -68,9 +68,9 @@ const Homepage = () => {
           </div>
         </div>
       </div>
-      <div className="text-white relative pb-8 top-4 md:mt-28 mt-72 text-start opacity-85">
+      <div className="text-white relative pb-8 top-4 md:mt-28 mt-[350px] text-start opacity-85">
         <p className="text-4xl text-center font-extrabold space-x-4"></p>
-        <p className="text-sm md:text-2xl w-96 md:w-3/4 mx-auto text-wrap break-words text-center capitalize">
+        <p className="text-sm md:text-2xl w-[90%] md:w-3/4 mx-auto text-wrap break-words text-center capitalize">
           Service to make people's life easier and smart with technology. You can
           get your rented house, apartment, or room for student or family need in
           different areas of Nepal.
@@ -88,6 +88,7 @@ const Homepage = () => {
           </div>
           <div className="w-[40%] flex h-auto items-center justify-center">
             <img
+             srcSet=""
               className="glowShadow object-cover md:w-60 md:h-60 opacity-80"
               src={PlumberIcon}
               alt="Plumber Icon"
@@ -99,6 +100,7 @@ const Homepage = () => {
         <div className="relative text-White w-full md:w-[75%] mx-auto min-h-fit flex flex-wrap md:rounded-lg px-8 py-8">
           <div className="w-[40%] flex h-auto justify-between pr-6">
             <img
+            srcSet=""
               className="glowShadow object-cover md:w-60 md:h-60 opacity-80"
               src={Electrician}
               alt="Electrician Icon"
@@ -112,7 +114,7 @@ const Homepage = () => {
           </div>
         </div>
       </section>
-      <section className="relative mb-5 border-t-4 border-gray-800 mt-5">
+      <section className="relative mb-5 border-t-4 border-b-4 border-gray-800 mt-5">
         <div className="text-white w-full md:w-[75%] mx-auto min-h-fit flex flex-wrap md:rounded-lg px-8 py-8">
           <div className="w-[60%] relative md:top-12 break-words">
             <h1 className="md:text-[3rem] text-2xl font-Roboto">Apartment</h1>
@@ -122,6 +124,7 @@ const Homepage = () => {
           </div>
           <div className="w-[40%] flex h-auto items-center justify-center">
             <img
+            srcSet=""
               className="glowShadow object-cover md:w-60 md:h-60 opacity-80"
               src={Apartment}
               alt="Apartment Icon"

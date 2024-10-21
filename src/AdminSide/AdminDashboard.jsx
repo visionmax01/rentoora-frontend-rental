@@ -34,24 +34,13 @@ const AdminDashboard = () => {
         setLoading(false);
       }
     };
-
-    const fetchProfilePhoto = async (profilePhotoPath) => {
-      try {
-        const response = await axios.get(
-          `https://rentoora-backend-rental.onrender.com/${profilePhotoPath}`,
-          {
-            responseType: "blob",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        const imageUrl = URL.createObjectURL(response.data);
-        setProfilePhoto(imageUrl);
-      } catch (error) {
-        console.error("Error fetching profile photo:", error);
-      }
+    const fetchProfilePhoto = (profilePhotoPath) => {
+      if (!profilePhotoPath) return;
+    
+      // Directly use the Cloudinary URL to set the profile photo
+      setProfilePhoto(profilePhotoPath);
     };
+
 
     const fetchClientCount = async () => {
       try {
@@ -127,13 +116,13 @@ const AdminDashboard = () => {
           <div className="md:block hidden">
             {profilePhoto ? (
               <img
-                className="w-24 h-24 rounded-full object-cover mr-6"
+                className="w-24 h-24 rounded-lg object-cover mr-6"
                 src={profilePhoto}
                 alt="Profile"
               />
             ) : (
               <img
-                className="w-24 h-24 rounded-full object-cover"
+                className="w-24 h-24 rounded-lg object-cover"
                 src={manpng}
                 alt="pic"
               />

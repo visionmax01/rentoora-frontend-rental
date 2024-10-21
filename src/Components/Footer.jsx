@@ -32,7 +32,19 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
             <ul className="space-y-2">
               <li className="flex items-center"><Phone className="mr-2 h-5 w-5" /> +977-981991223</li>
-              <li className="flex items-center"><Mail className="mr-2 h-5 w-5" /> bhishansah@Rentoora.com</li>
+              <li className="flex items-center">
+                <Mail className="mr-2 h-5 w-5" />
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=rentoora@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline hover:text-yellow-700"
+                >   
+                  rentoora@gmail.com
+                </a>
+              </li>
+
+
               <li> Near Durga-Mandir Lahan, Siraha, Madhesh Pradesh, 431704</li>
             </ul>
           </div>

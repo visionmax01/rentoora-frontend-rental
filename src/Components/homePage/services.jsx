@@ -15,7 +15,7 @@ const Services = () => {
     };
 
     return (
-        <div className="text-black flex flex-col items-center uppercase rounded-t-3xl md:rounded-none md:text-lg font-bold text-[12px] absolute z-10 px-4 py-8 top-28 h-auto md:min-h-fit min-h-96 w-full bg-gradient-to-r from-gray-700 to-blue-950 bluer-500">
+        <div className="text-black flex flex-col items-center uppercase   md:rounded-none md:text-lg  font-bold text-[12px] absolute z-10 px-4 py-8 top-28 h-auto md:min-h-fit min-h-96 w-full bg-gradient-to-r from-gray-700 to-blue-950 bluer-500">
             <div>
                 <h1 className='md:text-3xl text-xl text-white opacity-75 mb-4 uppercase font-extrabold'>
                     Services We Provide

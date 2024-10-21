@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast"; // Toast for notifications
+import { FaSpinner } from 'react-icons/fa';
+
 
 const UpdateClient = ({ client, onClose, refreshClients }) => {
   // State for client details
@@ -11,6 +13,8 @@ const UpdateClient = ({ client, onClose, refreshClients }) => {
   const [district, setDistrict] = useState(client.district);
   const [municipality, setMunicipality] = useState(client.municipality);
   const [citizenshipPhoto, setCitizenshipPhoto] = useState(null);
+  const [loading, setLoading] = useState(false);
+
 
   // Helper function to format date as MM/DD/YYYY
   const formatDate = (dateString) => {
@@ -32,7 +36,7 @@ const UpdateClient = ({ client, onClose, refreshClients }) => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     // Convert dateOfBirth back to YYYY-MM-DD format for submission
     const dateParts = dateOfBirth.split("/");
     const formattedDate = `${dateParts[2]}-${dateParts[0]}-${dateParts[1]}`; // YYYY-MM-DD format
@@ -46,7 +50,7 @@ const UpdateClient = ({ client, onClose, refreshClients }) => {
     formData.append("municipality", municipality);
     formData.append("dateOfBirth", formattedDate); // Include formatted date of birth
     if (citizenshipPhoto) formData.append("citizenshipImage", citizenshipPhoto); // Only add citizenship photo if uploaded
-
+   
     try {
       // Send the PUT request to update client details
       await axios.put(
@@ -64,6 +68,8 @@ const UpdateClient = ({ client, onClose, refreshClients }) => {
       refreshClients(); // Refresh the clients list in parent component
     } catch (error) {
       console.error("Error updating client details:", error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -179,8 +185,16 @@ const UpdateClient = ({ client, onClose, refreshClients }) => {
             <button
               type="submit"
               className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+              disabled={loading}
             >
-              Update
+                         {loading ? (
+              <span className="flex items-center">
+                <FaSpinner className="animate-spin h-5 w-5 mr-2" />
+                Updating...
+              </span>
+            ) : (
+              "Update"
+            )}
             </button>
             <button
               type="button"

@@ -252,7 +252,7 @@ const SingleViewRental = () => {
             <div className="lg:h-[450px] h-[220px] rounded-lg mb-4 bg-gray-200 flex justify-center items-center">
               {selectedImage ? (
                 <img
-                  src={`https://rentoora-backend-rental.onrender.com/${selectedImage}`}
+                  src={selectedImage}
                   alt="Selected"
                   className="w-full h-full object-cover rounded-lg"
                 />
@@ -270,7 +270,7 @@ const SingleViewRental = () => {
                 post.images.map((image, index) => (
                   <img
                     key={index}
-                    src={`https://rentoora-backend-rental.onrender.com/${image}`}
+                    src={image}
                     alt={`Post image ${index + 1}`}
                     className={`lg:w-20 lg:h-20 w-12 h-12 object-cover rounded-lg cursor-pointer ${
                       selectedImage === image ? "border-2 border-blue-600" : ""

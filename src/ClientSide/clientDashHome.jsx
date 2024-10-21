@@ -32,10 +32,9 @@ const ClientDashHome = () => {
   const [activeComponent, setActiveComponent] = useState("Dashboard");
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);
-  const [client, setClient] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [profilePhoto, setProfilePhoto] = useState(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Load the last active component from localStorage if it exists
@@ -44,21 +43,21 @@ const ClientDashHome = () => {
       setActiveComponent(savedComponent);
     }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/client-login");
-    }
-
     const fetchUserData = async () => {
       try {
+        // Fetch user data from the server, token is automatically included in headers
         const response = await axios.get("https://rentoora-backend-rental.onrender.com/auth/user-data", {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
+
+        // Set the user data and profile photo path
         setUser(response.data);
         fetchProfilePhoto(response.data.profilePhotoPath);
-        setTimeout(() => setLoading(false), 1000); // 2 second delay
+
+        // Set loading state to false
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching user data:", error);
         navigate("/client-login");
@@ -69,17 +68,12 @@ const ClientDashHome = () => {
   }, [navigate]);
 
   const fetchProfilePhoto = (profilePhotoPath) => {
-    axios
-      .get(`https://rentoora-backend-rental.onrender.com/${profilePhotoPath}`, { responseType: "arraybuffer" })
-      .then((response) => {
-        const imageBlob = new Blob([response.data], { type: response.headers["content-type"] });
-        const imageUrl = URL.createObjectURL(imageBlob);
-        setProfilePhoto(imageUrl);
-      })
-      .catch((error) => {
-        console.log("Error fetching profile photo:", error);
-      });
+    if (!profilePhotoPath) return;
+  
+    // Directly use the Cloudinary URL to set the profile photo
+    setProfilePhoto(profilePhotoPath);
   };
+  
 
   const handleLogout = async () => {
     try {
@@ -113,12 +107,11 @@ const ClientDashHome = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Function to handle component change and save it to localStorage
   const handleComponentChange = (component) => {
     setActiveComponent(component);
     localStorage.setItem("activeComponent", component); // Save active component to localStorage
   };
-
+  
   const renderComponent = () => {
     switch (activeComponent) {
       case "Dashboard":
@@ -127,13 +120,13 @@ const ClientDashHome = () => {
         return <ClientProfile />;
       case "View_posts":
         return <AllPost />;
-        case "Order_recieved":
+      case "Order_recieved":
         return <MyBookedOrders />;
       case "Support":
         return <ServicesSupport />;
       case "Create_post":
         return <ClientPost />;
-        case "my_order":
+      case "my_order":
         return <MyOrders />;
       case "change-password":
         return <ChangePassword />;
@@ -142,19 +135,23 @@ const ClientDashHome = () => {
     }
   };
 
-  if (loading) return (
-    <div className="w-full bg-brand-bgColor h-screen mx-auto my-auto text-white flex justify-center items-center">
-      <div className="w-fit mx-auto flex justify-center flex-col">
-        <FaSpinner className="animate-spin w-10 h-10 mx-auto mb-6" />
-        <p>Redirecting to Your Dashboard . . .</p>
+  if (loading) {
+    return (
+      <div className="w-full bg-brand-bgColor h-screen mx-auto my-auto text-white flex justify-center items-center">
+        <div className="w-fit mx-auto flex justify-center flex-col">
+          <FaSpinner className="animate-spin w-10 h-10 mx-auto mb-6" />
+          <p>Redirecting to Your Dashboard . . .</p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
-  if (!user) return <div className="w-full h-screen mx-auto my-auto text-white">Error loading user data.</div>;
+  if (!user) {
+    return <div className="w-full h-screen mx-auto my-auto text-white">Error loading user data.</div>;
+  }
 
   return (
-    <div className="flex bg-brand-bgColor h-screen">
+    <div className="flex  h-fit">
       <button
         className="fixed top-2 left-2 rounded hover:bg-gray-200 bg-white p-3 text-red-800 z-50"
         onClick={toggleMenu}
@@ -174,7 +171,7 @@ const ClientDashHome = () => {
                 className={`flex hover:bg-brand-bgColor hover:text-white items-center gap-2 w-full px-4 rounded-l-full py-2 ${
                   activeComponent === item ? "bg-brand-bgColor text-white" : ""
                 }`}
-                onClick={() => handleComponentChange(item)} // Use handleComponentChange to change component
+                onClick={() => handleComponentChange(item)}
               >
                 {item === "Dashboard" && <LayoutDashboard />}
                 {item === "Profile" && <User />}
@@ -229,48 +226,46 @@ const ClientDashHome = () => {
                 )}
                 <ChevronDown className="text-black" />
               </button>
-             
             </div>
           </div>
         </div>
         <main className="overflow-hidden ">{renderComponent()}</main>
       </aside>
       {profileMenuOpen && (
-                <div
-                  ref={profileMenuRef}
-                  className="absolute z-50 top-14 right-8 bg-white w-[13rem] h-fit rounded-sm shadow-lg text-black"
-                >
-                  <ul className="flex flex-col gap-2">
-                  <li
-                      onClick={() => navigate("/")}
-                      className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
-                    >
-                      Return to Home
-                    </li>
-                  <li
-                      onClick={() => handleComponentChange("Profile")}
-                      className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
-                    >
-                      Profile
-                    </li>
-                    <li
-                      onClick={() => handleComponentChange("change-password")}
-                      className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
-                    >
-                      Change Password
-                    </li>
-                    <li
-                      onClick={handleLogout}
-                      className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
-                    >
-                      Logout &nbsp;
-                      <LogOut className="inline-block mr-2" />
-                      
-                    </li>
-                  </ul>
-                  <ArrowDropUpIcon className="text-white absolute -top-3 right-2" />
-                </div>
-              )}
+        <div
+          ref={profileMenuRef}
+          className="absolute z-50 top-14 right-8 bg-white w-[13rem] h-fit rounded-sm shadow-lg text-black"
+        >
+          <ul className="flex flex-col gap-2">
+            <li
+              onClick={() => navigate("/")}
+              className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
+            >
+              Return to Home
+            </li>
+            <li
+              onClick={() => handleComponentChange("Profile")}
+              className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
+            >
+              Profile
+            </li>
+            <li
+              onClick={() => handleComponentChange("change-password")}
+              className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
+            >
+              Change Password
+            </li>
+            <li
+              onClick={handleLogout}
+              className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
+            >
+              Logout &nbsp;
+              <LogOut className="inline-block mr-2" />
+            </li>
+          </ul>
+          <ArrowDropUpIcon className="text-white absolute -top-3 right-2" />
+        </div>
+      )}
     </div>
   );
 };

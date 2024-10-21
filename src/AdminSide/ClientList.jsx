@@ -14,9 +14,9 @@ const ClientsTable = () => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
-  const [showDeletePopup, setShowDeletePopup] = useState(false); // New state for delete confirmation
-  const [clientToDelete, setClientToDelete] = useState(null); // Store the client to be deleted
-  const [searchTerm, setSearchTerm] = useState(""); // State for search input
+  const [showDeletePopup, setShowDeletePopup] = useState(false); 
+  const [clientToDelete, setClientToDelete] = useState(null); 
+  const [searchTerm, setSearchTerm] = useState(""); 
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -67,7 +67,7 @@ const ClientsTable = () => {
       );
       setShowDeletePopup(false);
       setClientToDelete(null);
-      toast.success("Client deleted successfully!"); // Toast message for success
+      toast.success("Client & Associated Document deleted successfully!"); 
     } catch (err) {
       setError("Error deleting client");
       setShowDeletePopup(false);
@@ -163,7 +163,7 @@ const filteredClients = clients.filter((client) => {
           <td className="py-2 px-4 border-b">
             <img
               className="rounded-full w-6 h-6"
-              src={`https://rentoora-backend-rental.onrender.com/${client.profilePhotoPath}`}
+              src={client.profilePhotoPath}
               alt="Profile"
             />
           </td>
@@ -208,7 +208,7 @@ const filteredClients = clients.filter((client) => {
             {index + 1 + indexOfFirstClient}
           </td>
           <td className="px-2 py-3 text-[15.2px] border-b">
-            <img className="rounded-full w-6 h-6" src={`https://rentoora-backend-rental.onrender.com/${client.profilePhotoPath}`} alt="Profile" />
+            <img className="rounded-full w-6 h-6" src={client.profilePhotoPath} alt="Profile" />
           </td>
           <td className="px-2 py-3 text-[15.2px] border-b">{client.name}</td>
           <td className="px-2 py-3 text-[15.2px] border-b">{client.accountId}</td>
@@ -301,7 +301,7 @@ const filteredClients = clients.filter((client) => {
             <div className=" text-center w-fit bg-gray-200 rounded">
               <img
                 className="rounded w-32 lg:h-32 h-24 "
-                src={`https://rentoora-backend-rental.onrender.com/${selectedClient.profilePhotoPath}`}
+                src={selectedClient.profilePhotoPath}
                 alt="No Profile pic"
               />
               <p className="font-bold text-gray-400  uppercase">profile Pic</p>
@@ -311,7 +311,7 @@ const filteredClients = clients.filter((client) => {
             <div className="text-center w-fit rounded bg-gray-200 p-2">
               <img
                 className="rounded w-44 lg:h-32 h-24 "
-                src={`https://rentoora-backend-rental.onrender.com/${selectedClient.citizenshipImagePath}`}
+                src={selectedClient.citizenshipImagePath}
                 alt="No image Available"
               />
               <p className="font-bold text-gray-400  uppercase">Citizenship </p>

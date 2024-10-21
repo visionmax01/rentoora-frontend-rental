@@ -252,7 +252,7 @@ const MyOrders = () => {
                       order.postId.images &&
                       order.postId.images.length > 0 && (
                         <img
-                          src={`https://rentoora-backend-rental.onrender.com/${order.postId.images[0]}`} // Adjust this based on your server path
+                          src={order.postId.images[0]} // Adjust this based on your server path
                           alt={`Post ${order.postId.title}`}
                           className="w-full h-40 object-cover rounded-md mb-4"
                         />
