@@ -1,11 +1,12 @@
 import { useState, useEffect, createRef } from 'react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import Api from '../utils/Api.js';
 import Mainlogo from '../assets/img/Main_logo.png';
 
 const OtpPage = ({ email, onOtpVerified }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingr, setIsLoadingr] = useState(false);
   const [countdown, setCountdown] = useState(60); // 2 minutes countdown
   const inputRefs = Array(6).fill().map(() => createRef()); // Array of refs for input fields
 
@@ -84,7 +85,7 @@ const OtpPage = ({ email, onOtpVerified }) => {
     setIsLoading(true);
     const otpString = otp.join(''); // Join the OTP array into a string
     try {
-      const response = await axios.post('https://rentoora-backend-rental.onrender.com/auth/verify-otp', { email, otp: otpString });
+      const response = await Api.post('auth/verify-otp', { email, otp: otpString });
       toast.success(response.data.message);
       onOtpVerified();
     } catch (error) {
@@ -96,12 +97,15 @@ const OtpPage = ({ email, onOtpVerified }) => {
   };
 
   const resendOtpHandler = async () => {
+    setIsLoadingr(true);
     try {
-      await axios.post('https://rentoora-backend-rental.onrender.com/auth/send-otp', { email });
-      setCountdown(120); // Reset the countdown
+      await Api.post('auth/send-otp', { email });
+      setCountdown(60); // Reset the countdown
       toast.success('OTP resent to your email');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to resend OTP');
+    }finally {
+      setIsLoadingr(false);
     }
   };
 
@@ -135,16 +139,19 @@ const OtpPage = ({ email, onOtpVerified }) => {
       >
         {isLoading ? 'Verifying OTP...' : 'Verify OTP'}
       </button>
-      <div className="mt-4 text-center">
+     
+    </form>
+    <div className="mt-4 text-center">
         {countdown > 0 ? (
           <p>Resend OTP in {Math.floor(countdown / 60)}:{('0' + (countdown % 60)).slice(-2)}</p>
         ) : (
-          <button onClick={resendOtpHandler} className="text-blue-500 hover:underline">
-            Resend OTP
+          <button onClick={resendOtpHandler} 
+           disabled={isLoadingr}
+           className="text-blue-500 hover:underline">
+            {isLoadingr ? 'Sending OTP...' : 'Resend OTP'}
           </button>
         )}
       </div>
-    </form>
     </>
   );
 };

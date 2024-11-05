@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import manpng from "../assets/img/man.png";
 import { Link } from "react-router-dom";
+import Api from '../utils/Api.js'
 
 const AdminNav = () => {
   const [user, setUser] = useState(null);
@@ -13,7 +13,7 @@ const AdminNav = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get("https://rentoora-backend-rental.onrender.com/auth/profile", {
+        const response = await Api.get("auth/profile", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -38,8 +38,8 @@ const AdminNav = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "https://rentoora-backend-rental.onrender.com/auth/logout",
+      await Api.post(
+        "auth/logout",
         {},
         {
           headers: {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import Api from '../utils/Api.js'
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-hot-toast"; // Import toast for notifications
 import TermsAndConditionsPopup from "../Components/terms_conditionPupup";
@@ -95,8 +95,8 @@ const Register = () => {
         }
       });
 
-      const response = await axios.post(
-        "https://rentoora-backend-rental.onrender.com/auth/register",
+      const response = await Api.post(
+        "auth/register",
         formDataToSend,
         {
           headers: { "Content-Type": "multipart/form-data" },

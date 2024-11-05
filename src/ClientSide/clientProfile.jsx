@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import Api from '../utils/Api.js'
 import { PenBoxIcon, XIcon } from "lucide-react";
 import manpng from "../assets/img/man.png";
 import ProfilePopup from "../utils/ProfilePopup.jsx";
@@ -30,7 +30,7 @@ const ClientProfile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get("https://rentoora-backend-rental.onrender.com/auth/profile", {
+        const response = await Api.get("auth/profile", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -69,7 +69,7 @@ const ClientProfile = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await axios.put("https://rentoora-backend-rental.onrender.com/auth/update-user-details", {
+      await Api.put("auth/update-user-details", {
         ...details,
         dateOfBirth: new Date(details.dateOfBirth).toISOString()
       }, {
@@ -79,7 +79,7 @@ const ClientProfile = () => {
       });
       toast.success(`${editingField} updated successfully!`);
       setEditingField(null);
-      const response = await axios.get("https://rentoora-backend-rental.onrender.com/auth/user-data", {
+      const response = await Api.get("auth/user-data", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

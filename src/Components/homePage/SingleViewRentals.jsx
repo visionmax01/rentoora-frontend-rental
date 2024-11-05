@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import Api from '../../utils/Api.js'
 import KhaltiCheckout from "khalti-checkout-web";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -48,11 +48,11 @@ const SingleViewRental = () => {
 
   const fetchPostDetails = async () => {
     try {
-      const response = await axios.get(
-        `https://rentoora-backend-rental.onrender.com/order/post/${postId}`
+      const response = await Api.get(
+        `order/post/${postId}`
       );
       setPost(response.data);
-      localStorage.setItem(`post_${postId}`, JSON.stringify(response.data)); // Save post to localStorage
+      localStorage.setItem(`post_${postId}`, JSON.stringify(response.data));
       if (response.data.images && response.data.images.length > 0) {
         setSelectedImage(response.data.images[0]);
         localStorage.setItem(
@@ -102,10 +102,10 @@ const SingleViewRental = () => {
 
   const initiateKhaltiPayment = () => {
     let config = {
-      publicKey: "YOUR_KHALTI_PUBLIC_KEY",
+      publicKey: "9790e5796c9841fcb5b8a9a2dfb418d4",  
       productIdentity: post._id,
       productName: post.postType,
-      productUrl: `http://localhost:3000/rental/${post._id}`,
+      productUrl: `https://rentoora-backend-rental.onrender.com/rental/${post._id}`,
       eventHandler: {
         onSuccess(payload) {
           verifyKhaltiPayment(payload);
@@ -120,50 +120,21 @@ const SingleViewRental = () => {
       },
       paymentPreference: ["KHALTI"],
     };
-
+  
     let checkout = new KhaltiCheckout(config);
-    checkout.show({ amount: post.price * 100 }); // Amount in paisa
+    checkout.show({ amount: post.price * 100 });
   };
+  
 
-  const verifyKhaltiPayment = async (payload) => {
-    try {
-      const userId = localStorage.getItem("userId");
-      const token = localStorage.getItem("token");
 
-      const verificationResponse = await axios.post(
-        "https://rentoora-backend-rental.onrender.com/payment/khalti/verify",
-        {
-          token: payload.token,
-          amount: payload.amount,
-          userId,
-          postId: post._id,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (verificationResponse.data.success) {
-        toast.success("Payment successful");
-        await placeOrder(); // Proceed with order placement after payment is successful
-      } else {
-        toast.error("Payment verification failed");
-      }
-    } catch (error) {
-      console.error("Error verifying payment:", error);
-      toast.error("Payment verification failed");
-    }
-  };
 
   const placeOrder = async () => {
     try {
         const userId = localStorage.getItem("userId");
         const token = localStorage.getItem("token");
 
-        await axios.post(
-            "https://rentoora-backend-rental.onrender.com/order/create",
+        await Api.post(
+            "order/create",
             { postId: post._id, userId, paymentMethod },
             {
                 headers: {
@@ -173,8 +144,8 @@ const SingleViewRental = () => {
         );
 
         // Update the post status to "Booked"
-        await axios.patch(
-            `https://rentoora-backend-rental.onrender.com/order/post/${postId}`,
+        await Api.patch(
+            `order/post/${postId}`,
             { status: "Booked" },
             {
                 headers: {
@@ -191,7 +162,7 @@ const SingleViewRental = () => {
         if (error.response && error.response.data && error.response.data.message) {
             toast.error(error.response.data.message);
         } else {
-            toast.error("Error placing order"); // Fallback error message
+            toast.error("Error placing order"); 
         }
     }
 };
@@ -325,7 +296,7 @@ const SingleViewRental = () => {
                 onClick={handleOrder}
                 className="bg-blue-600 text-white px-6 py-3 rounded font-bold hover:bg-blue-700 transition duration-300"
               >
-                Order Now
+                Book Now
               </button>
             </div>
           </div>

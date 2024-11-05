@@ -1,6 +1,9 @@
 
 body{
   box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  font-weight:500;
+  font-style: normal;
 
 }
 .glow-shadow {
@@ -18,6 +21,32 @@ body{
   border-radius: inherit;
   box-shadow: 0 0 20px 5px rgba(255, 3, 3, 0.5);
   pointer-events: none;
+}
+
+
+
+
+
+
+.poppins-thin {
+  font-family: "Poppins", sans-serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
 

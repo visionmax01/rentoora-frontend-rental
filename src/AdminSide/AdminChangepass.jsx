@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import AdminNav from "../AdminSide/adminNav";
+import Api from '../utils/Api.js'
 
 const AdminChangepass = () => {
   const [oldPassword, setOldPassword] = useState("");
@@ -28,8 +28,8 @@ const AdminChangepass = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post(
-        "https://rentoora-backend-rental.onrender.com/auth/change-password",
+      const response = await Api.post(
+        "auth/change-password",
         { oldPassword, newPassword },
         {
           headers: {

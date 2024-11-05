@@ -12,7 +12,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import Api from '../utils/Api.js'
 import CompanyLogo from "../assets/img/Main_logo.png";
 import manpng from "../assets/img/man.png";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
@@ -46,7 +46,7 @@ const ClientDashHome = () => {
     const fetchUserData = async () => {
       try {
         // Fetch user data from the server, token is automatically included in headers
-        const response = await axios.get("https://rentoora-backend-rental.onrender.com/auth/user-data", {
+        const response = await Api.get("auth/user-data", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -77,7 +77,7 @@ const ClientDashHome = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('https://rentoora-backend-rental.onrender.com/auth/logout', {}, {
+      await Api.post('auth/logout', {}, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -229,7 +229,7 @@ const ClientDashHome = () => {
             </div>
           </div>
         </div>
-        <main className="overflow-hidden ">{renderComponent()}</main>
+        <main className="overflow-hidden h-screen bg-gray-100 ">{renderComponent()}</main>
       </aside>
       {profileMenuOpen && (
         <div

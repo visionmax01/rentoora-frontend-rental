@@ -9,18 +9,21 @@ import "./style.css";
 import Footer from "../Footer";
 import Services from "./services";
 import Testimonials from "./testimonials";
+import Chatbot from "../../utils/chatbot";
 
 const Homepage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setSearchTerm(e.target.value);
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      navigate(`/search?searchTerm=${encodeURIComponent(searchTerm)}`);
+    }
   };
 
-  const handleSearch = () => {
-    if (searchTerm) {
-      navigate(`/Search/${encodeURIComponent(searchTerm)}`);
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
     }
   };
 
@@ -41,16 +44,18 @@ const Homepage = () => {
         </div>
         <div className="mx-auto flex flex-col items-center justify-center">
           <div className="w-full flex flex-col h-64 rounded-lg relative">
-            <div className="obsolute flex justify-center w-full z-20">
+            <div className="absolute flex justify-center w-full z-20">
               <div className="max-w-fi py-4">
+                {/* Search section */}
                 <div className="searchBox bg-white bg-opacity-10 flex justify-between items-center p-2 gap-2 rounded-lg">
                   <Locate className="relative opacity-70 w-5 h-5" />
                   <input
                     className="text-white font-sans text-xl border-none outline-none w-62 md:w-96 py-1 bg-transparent"
                     type="text"
-                    value={searchTerm}
-                    onChange={handleChange}
                     placeholder="Enter location..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyPress={handleKeyPress}
                   />
                   <button
                     type="button"
@@ -60,6 +65,7 @@ const Homepage = () => {
                     <Search />
                   </button>
                 </div>
+                {/* End of search field */}
               </div>
             </div>
             <div>
@@ -88,7 +94,6 @@ const Homepage = () => {
           </div>
           <div className="w-[40%] flex h-auto items-center justify-center">
             <img
-             srcSet=""
               className="glowShadow object-cover md:w-60 md:h-60 opacity-80"
               src={PlumberIcon}
               alt="Plumber Icon"
@@ -97,10 +102,9 @@ const Homepage = () => {
         </div>
       </section>
       <section className="mb-5 border-t-4 border-gray-800 mt-5">
-        <div className="relative text-White w-full md:w-[75%] mx-auto min-h-fit flex flex-wrap md:rounded-lg px-8 py-8">
+        <div className="relative text-white w-full md:w-[75%] mx-auto min-h-fit flex flex-wrap md:rounded-lg px-8 py-8">
           <div className="w-[40%] flex h-auto justify-between pr-6">
             <img
-            srcSet=""
               className="glowShadow object-cover md:w-60 md:h-60 opacity-80"
               src={Electrician}
               alt="Electrician Icon"
@@ -124,7 +128,6 @@ const Homepage = () => {
           </div>
           <div className="w-[40%] flex h-auto items-center justify-center">
             <img
-            srcSet=""
               className="glowShadow object-cover md:w-60 md:h-60 opacity-80"
               src={Apartment}
               alt="Apartment Icon"
@@ -134,6 +137,7 @@ const Homepage = () => {
       </section>
       <Testimonials />
       <Footer />
+      <Chatbot />
     </div>
   );
 };

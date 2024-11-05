@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import Api from '../utils/Api.js'
 import ReceivedOrder from "../Myorder/ReceivedOrder"; // Import the OrderPopup component if needed
 import { FiChevronDown, FiChevronUp } from "react-icons/fi"; // Import icons
 
@@ -21,8 +21,8 @@ const MyBookedOrders = () => {
     }
 
     try {
-      const response = await axios.get(
-        "https://rentoora-backend-rental.onrender.com/order/my-booked-orders",
+      const response = await Api.get(
+        "order/my-booked-orders",
         {
           // Adjusted endpoint
           headers: {
@@ -58,7 +58,7 @@ const MyBookedOrders = () => {
     }
 
     try {
-      await axios.delete(`https://rentoora-backend-rental.onrender.com/order/cancel/${orderId}`, {
+      await Api.delete(`order/cancel/${orderId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

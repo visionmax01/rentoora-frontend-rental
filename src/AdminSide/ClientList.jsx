@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { FaTrash, FaEye, FaEdit } from "react-icons/fa";
 import AdminNav from "./adminNav";
 import { toast } from "react-hot-toast"; 
 import UpdateClient from "./UpdateClient"; 
+import Api from '../utils/Api.js'
 
 
 const ClientsTable = () => {
@@ -21,8 +21,8 @@ const ClientsTable = () => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const response = await axios.get(
-          "https://rentoora-backend-rental.onrender.com/admin/all-clients",
+        const response = await Api.get(
+          "admin/all-clients",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -52,8 +52,8 @@ const ClientsTable = () => {
 
   const confirmDeleteClient = async () => {
     try {
-      await axios.delete(
-        `https://rentoora-backend-rental.onrender.com/admin/delete-client/${clientToDelete.accountId}`,
+      await Api.delete(
+        `admin/delete-client/${clientToDelete.accountId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

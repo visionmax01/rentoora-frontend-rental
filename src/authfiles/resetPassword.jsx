@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import Api from '../utils/Api.js';
 import Mainlogo from '../assets/img/Main_logo.png';
 
 const ResetPassword = ({ email }) => {
@@ -22,11 +22,9 @@ const ResetPassword = ({ email }) => {
     }
 
     try {
-      const response = await axios.post('https://rentoora-backend-rental.onrender.com/auth/reset-password', { email, newPassword });
+      const response = await Api.post('auth/reset-password', { email, newPassword });
       toast.success(response.data.message);
-      
-      // Redirect to client login route after successful reset
-      navigate('/client-login'); // Change this to the appropriate route
+      navigate('/client-login');
 
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to reset password');

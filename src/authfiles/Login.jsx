@@ -5,6 +5,7 @@ import Mainlogo from '../assets/img/Main_logo.png';
 import Mainlogo1 from '../assets/img/rentoora_logo_en.png';
 import { FaSpinner } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
+import Api from '../utils/Api.js'
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -35,7 +36,7 @@ const Login = () => {
 
     try {
       // Send login request to the server
-      const response = await axios.post('https://rentoora-backend-rental.onrender.com/auth/login', { email, password });
+      const response = await Api.post('auth/login', { email, password });
       console.log('Response from server:', response.data);
 
       const { token, result } = response.data;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import Api from '../utils/Api.js';
 import Mainlogo from '../assets/img/Main_logo.png';
 
 const ForgotPassword = ({ onOtpSent }) => {
@@ -14,7 +14,7 @@ const ForgotPassword = ({ onOtpSent }) => {
       toast.error("Please give us a Email !")
     }
     try {
-      const response = await axios.post('https://rentoora-backend-rental.onrender.com/auth/send-otp', { email });
+      const response = await Api.post('auth/send-otp', { email });
       toast.success(response.data.message);
       onOtpSent(email); // Pass email to parent component
     } catch (error) {

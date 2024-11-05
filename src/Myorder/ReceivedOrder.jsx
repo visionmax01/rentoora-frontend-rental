@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import Api from '../utils/Api.js'
 import { toast } from "react-hot-toast";
 import getLoggedInUserId from "../utils/getLoggedInUserId.jsx"; // Import the utility function
 
@@ -21,8 +21,8 @@ function ReceivedOrder({ order, onClose }) {
           return; // Exit if user ID could not be retrieved
         }
 
-        await axios.put(
-          `https://rentoora-backend-rental.onrender.com/order/orders/${order._id}/cancel`,
+        await Api.put(
+          `order/orders/${order._id}/cancel`,
           {
             canceledById: userId, // Only send the user ID
           },

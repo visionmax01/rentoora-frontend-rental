@@ -6,6 +6,7 @@ import ProfilePopup from "../utils/ProfilePopup.jsx";
 import toast from 'react-hot-toast';
 import AdminNav from "./adminNav";
 import { FaSpinner } from 'react-icons/fa';
+import Api from '../utils/Api.js'
 
 
 const AdminProfile = () => {
@@ -34,7 +35,7 @@ const AdminProfile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get("https://rentoora-backend-rental.onrender.com/auth/profile", {
+        const response = await Api.get("auth/profile", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -86,7 +87,7 @@ const AdminProfile = () => {
   const handleSave = async () => {
     setIsSaving(true); // Set loading state to true
     try {
-      await axios.put("https://rentoora-backend-rental.onrender.com/auth/update-user-details", {
+      await Api.put("auth/update-user-details", {
         ...details,
         dateOfBirth: new Date(details.dateOfBirth).toISOString()
       }, {
@@ -96,7 +97,7 @@ const AdminProfile = () => {
       });
       toast.success(`${editingField} updated successfully!`);
       setEditingField(null);
-      const response = await axios.get("https://rentoora-backend-rental.onrender.com/auth/user-data", {
+      const response = await Api.get("auth/user-data", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

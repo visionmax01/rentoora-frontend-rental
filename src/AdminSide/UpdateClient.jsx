@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast"; // Toast for notifications
 import { FaSpinner } from 'react-icons/fa';
+import Api from '../utils/Api.js'
+
 
 
 const UpdateClient = ({ client, onClose, refreshClients }) => {
@@ -53,8 +54,8 @@ const UpdateClient = ({ client, onClose, refreshClients }) => {
    
     try {
       // Send the PUT request to update client details
-      await axios.put(
-        `https://rentoora-backend-rental.onrender.com/admin/update-client/${client.accountId}`,
+      await Api.put(
+        `admin/update-client/${client.accountId}`,
         formData,
         {
           headers: {

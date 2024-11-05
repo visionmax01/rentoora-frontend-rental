@@ -34,6 +34,10 @@ import ClientDashHome from './ClientSide/clientDashHome.jsx'
 import ChangePassword from './ClientSide/ChangePassword.jsx'
 import ReceivedOrders from  './ClientSide/ReceivedOrders.jsx'
 import MyOrders from './Myorder/MyOrders.jsx'
+import FeedbackList from "./AdminSide/DiaplayallFeadback.jsx";
+import FeedbackForm from "./utils/FeedbackForm.jsx";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -52,6 +56,8 @@ function App() {
           <Route path="/rental/:postId" element={<SingleViewRentals />} />
           <Route path="/booked-order" element={<BookedOrder />} />
           <Route path="/Search/:searchTerm" element={<SearchResult />} />
+          <Route path="/feadBackform" element={<FeedbackForm />} /> 
+          <Route path="/search" element={<SearchResult />} /> 
 
           {/* Protected Routes for Clients */}
           <Route
@@ -73,8 +79,9 @@ function App() {
             <Route path="/admin-change-password" element={<AdminChangepass />} />
             <Route path="/client-list" element={<ClientList />} />
             <Route path="/client-posts" element={<DisplayClientPosts />} />
+            <Route path="/Diaplay-feedback" element={<FeedbackList />} />
           </Route>
-
+          
           {/* Catch-all Route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
@@ -82,17 +89,18 @@ function App() {
       <Toaster
         position="top-center"
         toastOptions={{
-          duration: 5000,
+          duration: 3000,
           style: {
             borderRadius: "0.2rem",
             padding: "1rem",
-            background: "green",
-            color: "#fff",
+            background: "white",
+            color: "#000",
             boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
             marginTop: "1rem",
           },
         }}
       />
+      <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
     </>
   );
 }

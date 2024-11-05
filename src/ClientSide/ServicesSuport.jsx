@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import Api from '../utils/Api.js'
 import toast from 'react-hot-toast';
 
 const ServicesSupport = () => {
@@ -19,7 +19,7 @@ const ServicesSupport = () => {
   const fetchTickets = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('https://rentoora-backend-rental.onrender.com/txt/my-tickets', {
+      const res = await Api.get('txt/my-tickets', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -47,8 +47,8 @@ const ServicesSupport = () => {
 
     setLoading(true); // Set loading for the submit button
     try {
-      const res = await axios.post(
-        'https://rentoora-backend-rental.onrender.com/txt/create',
+      const res = await Api.post(
+        'txt/create',
         { issueType, message },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -84,7 +84,7 @@ const ServicesSupport = () => {
 
     setLoading(true); // Set loading for the modal
     try {
-      const res = await axios.put(`https://rentoora-backend-rental.onrender.com/txt/update/${editingTicket._id}`, {
+      const res = await Api.put(`txt/update/${editingTicket._id}`, {
         message,
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -116,7 +116,7 @@ const ServicesSupport = () => {
 
     setLoading(true);
     try {
-      await axios.delete(`https://rentoora-backend-rental.onrender.com/txt/delete/${ticketToDelete._id}`, {
+      await Api.delete(`txt/delete/${ticketToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success('Ticket deleted successfully.');
@@ -143,13 +143,17 @@ const ServicesSupport = () => {
             <label htmlFor="issueType" className="block text-sm font-medium ">
               Issue Type
             </label>
-            <input
+            <select
               id="issueType"
               type="text"
               value={issueType}
               onChange={(e) => setIssueType(e.target.value)}
               className="mt-1 p-2 border bg-transparent outline-none focus:border-red-600 rounded w-full"
-            />
+            >
+              <option value="software related issue">software related issue</option>
+              <option value="salse related issue">salse related issue</option>
+              <option value="post related issue">post  related issue</option>
+            </select>
           </div>
 
           <div className="mb-4">
@@ -231,8 +235,11 @@ const ServicesSupport = () => {
             <textarea
               value={selectedTicket.message}
               readOnly
-              className="w-full h-24 p-2 border border-gray-300 rounded"
+              className="w-full  h-12 p-2 border border-gray-300 rounded"
             ></textarea>
+            <div className="mb-2">
+                <strong>Reply:</strong> {selectedTicket.supportReply}
+            </div>
             <div className="mt-4 flex justify-between">
               <button
                 className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"

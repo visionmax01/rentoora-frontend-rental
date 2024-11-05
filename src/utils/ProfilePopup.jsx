@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "./cropImage"; // Ensure this function is correctly defined
-import axios from "axios";
+import Api from '../utils/Api.js'
 import { XIcon } from "lucide-react";
 import { toast } from "react-hot-toast";
 import "react-easy-crop/react-easy-crop.css";
@@ -50,8 +50,8 @@ const ProfilePopup = ({ isOpen, onClose, onUpload }) => {
       const blob = await fetch(croppedImage).then((res) => res.blob());
       formData.append("profilePhoto", blob, "profile-pic.jpg");
 
-      const response = await axios.post(
-        "https://rentoora-backend-rental.onrender.com/auth/update-profile-pic",
+      const response = await Api.post(
+        "auth/update-profile-pic",
         formData,
         {
           headers: {

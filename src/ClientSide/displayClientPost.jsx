@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import toast from "react-hot-toast";
+import Api from '../utils/Api.js'
+import {toast} from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 
 const DisplayPosts = () => {
@@ -22,7 +22,7 @@ const DisplayPosts = () => {
     }
 
     try {
-      const response = await axios.get("https://rentoora-backend-rental.onrender.com/api/post", {
+      const response = await Api.get("api/post", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -42,8 +42,8 @@ const DisplayPosts = () => {
 
   const handleDelete = async (postId) => {
     try {
-      const response = await axios.delete(
-        `https://rentoora-backend-rental.onrender.com/api/posts/${postId}`,
+      const response = await Api.delete(
+        `api/posts/${postId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -70,8 +70,8 @@ const DisplayPosts = () => {
     }
     try {
       setLoadingUpdate(true);
-      const response = await axios.put(
-        `https://rentoora-backend-rental.onrender.com/api/posts/${selectedPost._id}`,
+      const response = await Api.put(
+        `api/posts/${selectedPost._id}`,
         selectedPost,
         {
           headers: {

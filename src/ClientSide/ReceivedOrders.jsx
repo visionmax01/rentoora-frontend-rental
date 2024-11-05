@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import Api from '../utils/Api.js'
 import { toast } from 'react-hot-toast';
 
 const ReceivedOrders = () => {
@@ -19,7 +19,7 @@ const ReceivedOrders = () => {
     }
 
     try {
-      const response = await axios.get('https://rentoora-backend-rental.onrender.com/api/orders/received-orders', {
+      const response = await Api.get('api/orders/received-orders', {
         headers: {
           Authorization: `Bearer ${token}`, // Include token in headers
         },

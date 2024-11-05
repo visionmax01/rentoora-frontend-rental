@@ -1,151 +1,236 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
-import toast from "react-hot-toast";
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import Api from '../../utils/Api.js';
+import Skeleton from 'react-loading-skeleton';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLocationDot, faRotate } from '@fortawesome/free-solid-svg-icons';
+import NavBar from '../NavBar.jsx';
+import { motion } from 'framer-motion'; // Import motion from framer-motion
 
 const SearchResult = () => {
-  const { searchTerm } = useParams();
-  const [posts, setPosts] = useState([]);
+  const [results, setResults] = useState([]);
+  const [filteredResults, setFilteredResults] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [filteredPosts, setFilteredPosts] = useState([]);
-  const [propertyType, setPropertyType] = useState(""); // State for property type filter
-  const [searchInput, setSearchInput] = useState(searchTerm || ""); // State for search input
+  const [searchTerm, setSearchTerm] = useState('');
+  const [propertyType, setPropertyType] = useState('');
+  const [selectedPostType, setSelectedPostType] = useState('');
+  const [visibleCount, setVisibleCount] = useState(3); // State for controlling visible posts
+  const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await axios.get("https://rentoora-backend-rental.onrender.com/order/display-posts");
-        setPosts(response.data);
-        // Filter posts based on the initial searchTerm from the URL
-        filterPosts(searchTerm);
-      } catch (error) {
-        setError("Error fetching posts");
-        toast.error("Error fetching posts");
-      } finally {
-        setLoading(false);
-      }
-    };
+    const searchParams = new URLSearchParams(location.search);
+    const term = searchParams.get('searchTerm');
+    if (term) {
+      setSearchTerm(term);
+      fetchResults(term, propertyType);
+    }
+  }, [location.search, propertyType]);
 
-    fetchPosts();
-  }, [searchTerm]); // Fetch posts only when the component mounts or searchTerm changes
+  useEffect(() => {
+    filterResults();
+  }, [selectedPostType, results]);
 
-  // Filter posts based on the searchInput and propertyType
-  const filterPosts = (searchTerm) => {
-    if (searchTerm && posts.length > 0) {
-      const searchLower = searchTerm.toLowerCase();
-      const results = posts.filter((post) => {
-        const provinceMatch = post.address?.province.toLowerCase().includes(searchLower);
-        const districtMatch = post.address?.district.toLowerCase().includes(searchLower);
-        const municipalityMatch = post.address?.municipality.toLowerCase().includes(searchLower);
-        const postTypeMatch = post.postType.toLowerCase().includes(searchLower);
-        const propertyTypeMatch = propertyType ? post.postType.toLowerCase() === propertyType : true;
-
-        // Exclude booked posts
-        const isBooked = post.status && post.status.toLowerCase() === "booked"; // Check if post is booked
-
-        return (provinceMatch || districtMatch || municipalityMatch || postTypeMatch) && propertyTypeMatch && !isBooked;
-      });
-      setFilteredPosts(results);
+  const filterResults = () => {
+    if (!selectedPostType) {
+      setFilteredResults(results);
     } else {
-      setFilteredPosts(posts.filter(post => !post.status || post.status.toLowerCase() !== "booked")); // Show only available posts
+      const filtered = results.filter(post => 
+        post.postType.toLowerCase() === selectedPostType.toLowerCase()
+      );
+      setFilteredResults(filtered);
     }
   };
 
-  // Handle the search button click
-  const handleSearchClick = () => {
-    filterPosts(searchInput); // Filter based on new input
-    navigate(`/Search/${encodeURIComponent(searchInput)}`); // Update the URL for the new search term
+  const fetchResults = async (term, type) => {
+    setLoading(true);
+    setResults([]);
+    try {
+      const response = await Api.get(`rentals/search?searchTerm=${encodeURIComponent(term)}&propertyType=${encodeURIComponent(type)}`);
+      console.log('API Response:', response.data);
+      const fetchedResults = response.data || [];
+      // Filter out booked posts
+      const availableResults = fetchedResults.filter(post => post.status !== 'Booked');
+      setResults(Array.isArray(availableResults) ? availableResults : []);
+      setFilteredResults(Array.isArray(availableResults) ? availableResults : []);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    console.log('Current Search Term:', searchTerm);
+    console.log('Current Property Type:', propertyType);
+    fetchResults(searchTerm, propertyType);
+  };
+
+  const highlightText = (text, searchTerm) => {
+    if (!text || !searchTerm) return text;
+    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    return text.split(regex).map((part, index) => 
+      regex.test(part) ? <span key={index} className="bg-yellow-300">{part}</span> : part
+    );
   };
 
   const handleViewPost = (postId) => {
     navigate(`/rental/${postId}`);
   };
 
-  const handleSearchInputChange = (e) => {
-    setSearchInput(e.target.value);
+  const getUniquePostTypes = () => {
+    const types = [...new Set(results.map(post => post.postType))];
+    return types;
   };
 
-  const handlePropertyTypeChange = (e) => {
-    setPropertyType(e.target.value);
-    filterPosts(searchInput); // Refilter posts when property type changes
+  const handleViewMore = () => {
+    setVisibleCount(prevCount => prevCount + 3); 
   };
 
-  if (loading) return <div className="text-center">Loading...</div>;
-  if (error) return <div className="text-red-500 text-center">{error}</div>;
+  const hasMorePosts = visibleCount < filteredResults.length;
+
+  if (loading) return (
+    <div className="h-screen w-full flex bg-gray-200 items-center justify-center">
+      <div className="shadow-lg text-xl gap-6 bg-white flex flex-col items-center justify-center rounded-lg p-6">
+        <p className='text-3xl'><FontAwesomeIcon icon={faRotate} className={`animate-spin`} /></p>
+        <p>Searching please Wait.</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="container mx-auto  bg-white p-6 w-[85%] lg:w-full">
+    <>
+      <NavBar />
+      <div className='w-[75%] p-8 mx-auto flex items-center justify-center '>
+        <div className='flex flex-col justify-center items-center '>
+          {/* Search Box */}
+          <div className='flex gap-6 items-center h-16 px-8 mb-4 justify-between w-full bg-blue-600/65 rounded-lg'>
+            <form onSubmit={handleSearch} className="">
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="border border-gray-300 rounded p-2 mr-2"
+              />
+              <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+                Search
+              </button>
+            </form>
+            {/* Post Type Filter */}
+            <div className="">
+              <select
+                value={selectedPostType}
+                onChange={(e) => setSelectedPostType(e.target.value)}
+                className="border border-gray-300 rounded p-2"
+              >
+                <option value="">All Post Types</option>
+                {getUniquePostTypes().map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-      {/* Search Input and Filter */}
-      <div className="flex  justify-center mb-4">
-        <input
-          type="text"
-          value={searchInput}
-          onChange={handleSearchInputChange}
-          placeholder="Search by location..."
-          className="border rounded-lg px-4 py-2 lg:w-64 w-44"
-        />
-        <select
-          value={propertyType}
-          onChange={handlePropertyTypeChange}
-          className="border rounded-lg px-2 py-2 ml-2"
-        >
-          <option value="">All Types</option>
-          <option value="room">Room</option>
-          <option value="apartment">Apartment</option>
-          <option value="house">House</option>
-        </select>
-        <button
-          onClick={handleSearchClick}
-          className="bg-blue-500 text-white px-4 py-2 rounded ml-2 hover:bg-blue-600"
-        >
-          <i class="fa-solid fa-magnifying-glass"></i>
-        </button>
-      </div>
-
-      {/* Posts display */}
-      <h1 className="text-2xl font-bold mb-4 text-center">Search Results</h1>
-      <div className="flex justify-center">
-
-        <div className="flex gap-4 justify-center items-center  flex-col w-1/2 mx-auto">
-          {filteredPosts.length > 0 ? (
-            filteredPosts.map((post) => (
-              <div key={post._id} className=" w-[70%]  border-2 relative border-gray-300 rounded-lg shadow-lg overflow-hidden">
-                <h2 className="absolute top-0 left-0 rounded-tl-lg text-xl text-white font-bold text-center bg-blue-400 opacity-95 uppercase px-2 py-1">
-                  {post.postType}
-                </h2>
-                <div>
-                  {Array.isArray(post.images) && post.images.length > 0 && (
-                    <img
-                      src={`https://rentoora-backend-rental.onrender.com/${post.images[0]}`}
-                      alt={post.postType}
-                      className="w-full h-32 object-cover rounded-lg border-2 border-gray-500"
-                    />
-                  )}
-                </div>
-                <div className="p-4">
-                  <p className="text-gray-700">{post.description}</p>
-                  <p className="text-lg font-bold">
-                    Price: Rs.<span className="text-3xl text-green-600">{Number(post.price).toLocaleString("en-IN")}</span>
-                  </p>
-                  <p className="text-gray-600">Area: {post.address?.district || "N/A"}</p>
-                  <button
-                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    onClick={() => handleViewPost(post._id)}
-                  >
-                    View
-                  </button>
-                </div>
-              </div>
-            ))
+          {filteredResults.length === 0 ? (
+            <p>No results found.</p>
           ) : (
-            <p className="text-center text-gray-500 col-span-full">No available posts for "{searchTerm}".</p>
+            <div className="flex flex-wrap justify-between gap-8">
+              {filteredResults.slice(0, visibleCount).map((post) => (
+                <motion.div
+                  key={post._id}
+                  initial={{ opacity: 0, y: 20 }} // Initial position for animation
+                  animate={{ opacity: 1, y: 0 }} // Final position for animation
+                  transition={{ duration: 0.3 }} // Animation duration
+                  className="transform h-fit transition duration-300 hover:scale-105 w-[325px] border-brand-lightGrow border relative rounded-lg shadow-lg overflow-hidden group"
+                >
+                  <div className="relative">
+                    {loading ? (
+                      <div className="bg-gray-200 h-44">
+                        <Skeleton height={176} />
+                        <div className="p-4">
+                          <Skeleton count={2} height={20} />
+                          <Skeleton width="60%" height={20} className="mt-2" />
+                        </div>
+                      </div>
+                    ) : Array.isArray(post.images) && post.images.length > 0 ? (
+                      <div className="w-full h-44 relative">
+                        <img
+                          src={post.images[0]}
+                          alt={post.postType}
+                          className="w-full h-full object-cover object-center rounded-t-lg"
+                        />
+                        <h2 className="text-2xl w-full font-bold absolute top-0 left-0 uppercase text-brand-white pt-1 text-center bg-yellow-600">
+                          {highlightText(post.postType, searchTerm)}
+                        </h2>
+                        <div className="absolute bottom-0 w-full justify-center flex text-center left-0 text-white text-xl font-extrabold transform">
+                          <div className="bg-green-400 w-full flex items-center px-2 py-1 relative">
+                            <p className="w-full text-center">
+                              Rs. {Number(post.price).toLocaleString("en-IN")}
+                            </p>
+                            <p className="absolute right-0 w-1 h-1/2 bg-white "></p>
+                            <p className="absolute left-0 w-1 h-1/2 bg-white "></p>
+                          </div>
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            className="bg-blue-400/40 hover:bg-green-400 font-bold px-4 py-2 rounded"
+                            onClick={() => handleViewPost(post._id)}
+                          >
+                            BOOK NOW
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-center h-36 flex items-center justify-center bg-brand-bgColor rounded-t-lg">
+                        No image available
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="py-2 px-4">
+                    <div className="flex gap-5 mb-2">
+                      <p>{highlightText(post.description, searchTerm)}</p>
+                    </div>
+
+                    {post.address ? (
+                      <div>
+                        <div className="flex gap-3">
+                          <p>
+                            <FontAwesomeIcon icon={faLocationDot} />
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            <strong>
+                              {highlightText(post.address.district, searchTerm)}
+                            </strong>
+                            ,{" "}
+                            <strong>
+                              {highlightText(post.address.municipality, searchTerm)}
+                            </strong>
+                            <strong className="text-sm ml-1">
+                              {highlightText(post.address.province, searchTerm)}
+                            </strong>
+                          </p>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+          {hasMorePosts && (
+            <button
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={handleViewMore}
+            >
+              View More
+            </button>
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

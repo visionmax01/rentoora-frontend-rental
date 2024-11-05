@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import OrderPopup from "./OrderPopup"; // Import the OrderPopup component if needed
-import { FiChevronDown, FiChevronUp } from "react-icons/fi"; // Import icons
+import Api from '../utils/Api.js'
+import OrderPopup from "./OrderPopup";
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
-  const [expandedOrderId, setExpandedOrderId] = useState(null); // Track the expanded order
-  const [selectedOrder, setSelectedOrder] = useState(null); // For handling the popup
+  const [expandedOrderId, setExpandedOrderId] = useState(null); 
+  const [selectedOrder, setSelectedOrder] = useState(null); 
   const [error, setError] = useState(null);
-  const [filterStatus, setFilterStatus] = useState("All"); // Track the filter status
-  const [displayedOrders, setDisplayedOrders] = useState([]); // Orders to display
-  const [ordersPerPage, setOrdersPerPage] = useState(5); // Number of orders per page
-  const [noDataMessage, setNoDataMessage] = useState(""); // Message for no data
+  const [filterStatus, setFilterStatus] = useState("All"); 
+  const [displayedOrders, setDisplayedOrders] = useState([]);
+  const [ordersPerPage, setOrdersPerPage] = useState(5); 
+  const [noDataMessage, setNoDataMessage] = useState(""); 
 
   // Fetch orders from the server
   const fetchOrders = async () => {
-    const userId = localStorage.getItem("userId"); // Get userId from local storage
-    const token = localStorage.getItem("token"); // Get token from local storage
+    const userId = localStorage.getItem("userId"); 
+    const token = localStorage.getItem("token"); 
 
     if (!token || !userId) {
       setError("User not authenticated. Please log in again.");
@@ -24,8 +24,8 @@ const MyOrders = () => {
     }
 
     try {
-      const response = await axios.get(
-        "https://rentoora-backend-rental.onrender.com/order/user-orders",
+      const response = await Api.get(
+        "order/user-orders",
         {
           headers: {
             Authorization: `Bearer ${token}`, // Include token in headers
@@ -44,12 +44,12 @@ const MyOrders = () => {
   };
 
   useEffect(() => {
-    fetchOrders(); // Fetch orders on component mount
+    fetchOrders();
   }, []);
 
   // Filter orders by status
   const filterOrders = (status) => {
-    setFilterStatus(status); // Update filter status
+    setFilterStatus(status); 
     let filteredOrders;
 
     if (status === "Booked") {
@@ -64,7 +64,7 @@ const MyOrders = () => {
       filteredOrders = orders; // Show all orders
     }
 
-    setDisplayedOrders(filteredOrders.slice(0, ordersPerPage)); // Reset displayed orders
+    setDisplayedOrders(filteredOrders.slice(0, ordersPerPage)); 
 
     // Set no data message based on filtered orders
     if (filteredOrders.length === 0) {
@@ -76,11 +76,9 @@ const MyOrders = () => {
             : "No canceled orders available."
       );
     } else {
-      setNoDataMessage(""); // Clear message if there are orders
+      setNoDataMessage("");
     }
   };
-
-  // Function to handle expanding/collapsing an order
   const toggleExpand = (orderId) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
   };
@@ -117,7 +115,7 @@ const MyOrders = () => {
       );
     }
 
-    return displayedOrders.length < filteredOrders.length; // If displayed orders are less than total filtered orders, return true
+    return displayedOrders.length < filteredOrders.length; 
   };
 
   return (
@@ -321,7 +319,7 @@ const MyOrders = () => {
       {selectedOrder && (
         <OrderPopup
           order={selectedOrder}
-          onClose={() => setSelectedOrder(null)} // Close popup
+          onClose={() => setSelectedOrder(null)}
         />
       )}
     </div>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { toast } from "react-hot-toast";
+import Api from '../utils/Api.js'
+import { toast } from "react-toastify";
 import { locationData } from "../utils/LocationData";
 import { FaSpinner } from "react-icons/fa";
 
@@ -79,7 +79,7 @@ function ClientPost() {
     try {
       const token = localStorage.getItem("token");
       setLoadingPost(true);
-      await axios.post("https://rentoora-backend-rental.onrender.com/api/post", data, {
+      await Api.post("api/post", data, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -162,6 +162,15 @@ function ClientPost() {
                     </option>
                     <option className="text-black" value="House">
                       House
+                    </option>
+                    <option className="text-black" value="Mobile">
+                      Mobile
+                    </option>
+                    <option className="text-black" value="Laptop">
+                      Laptop
+                    </option>
+                    <option className="text-black" value="Other Electooni">
+                      Other Electoonic
                     </option>
                   </select>
                 </div>

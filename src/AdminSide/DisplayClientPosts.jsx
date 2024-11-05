@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import toast from 'react-hot-toast';
+import Api from '../utils/Api.js'
+import {toast} from 'react-toastify';
 import AdminNav from './adminNav';
 import ConfirmationModal from './ConfirmationModal'; 
 import UpdatePostModal from './UpdatePostModal'; 
 import PostDetailsModal from '../utils/AdminViewPostPopup'; 
+
 
 const DisplayClientPosts = () => {
   const [posts, setPosts] = useState([]);
@@ -31,7 +32,7 @@ const DisplayClientPosts = () => {
           },
         };
 
-        const response = await axios.get('https://rentoora-backend-rental.onrender.com/admin/posts', config);
+        const response = await Api.get('admin/posts', config);
         setPosts(response.data);
         setFilteredPosts(response.data);
       } catch (error) {
@@ -66,7 +67,7 @@ const handleDeletePost = async () => {
       },
     };
 
-    await axios.delete(`https://rentoora-backend-rental.onrender.com/admin/posts/${postIdToDelete}`, config);
+    await Api.delete(`admin/posts/${postIdToDelete}`, config);
     setPosts(posts.filter(post => post._id !== postIdToDelete));
     setFilteredPosts(filteredPosts.filter(post => post._id !== postIdToDelete));
     toast.success('Post deleted successfully');
@@ -100,7 +101,7 @@ const handleDeletePost = async () => {
         },
       };
 
-      await axios.put(`https://rentoora-backend-rental.onrender.com/admin/posts/${updatedPost._id}`, {
+      await Api.put(`admin/posts/${updatedPost._id}`, {
         postType: updatedPost.postType,
         description: updatedPost.description,
         price: updatedPost.price,
@@ -112,7 +113,7 @@ const handleDeletePost = async () => {
       setIsUpdateModalOpen(false);
     } catch (error) {
       console.error('Error updating post:', error);
-      toast.error('Error updating post');
+      toast.error('Unable to Update the post is Booked');
     }finally{
       setUpdating(false);
     }
@@ -169,8 +170,8 @@ const handleDeletePost = async () => {
             <tr className="bg-gray-100 text-left">
               <th className="py-2 px-4 border-b">#</th>
               <th className="py-2 px-4 border-b">Image</th>
+              <th className="py-2 px-4 border-b">Satatus</th>
               <th className="py-2 px-4 border-b">Post Type</th>
-              <th className="py-2 px-4 border-b">Description</th>
               <th className="py-2 px-4 border-b">Price</th>
               <th className="py-2 px-4 border-b">Posted Date</th>
               <th className="py-2 px-4 border-b">Post By</th>
@@ -193,8 +194,8 @@ const handleDeletePost = async () => {
                     <p className="text-gray-500 text-center">No image available</p>
                   )}
                 </td>
+                <td className="py-2 px-4 border-b">{post.status}</td>
                 <td className="py-2 px-4 border-b">{post.postType}</td>
-                <td className="py-2 px-4 border-b">{post.description}</td>
                 <td className="py-2 px-4 border-b">Rs. {post.price}</td>
                 <td className="py-2 px-4 border-b">
                   {new Date(post.createdAt).toLocaleDateString()}

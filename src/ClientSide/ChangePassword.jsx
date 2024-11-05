@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import Api from '../utils/Api.js'
 import { toast } from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash, faSpinner } from "@fortawesome/free-solid-svg-icons";
@@ -27,8 +27,8 @@ const ChangePassword = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post(
-        "https://rentoora-backend-rental.onrender.com/auth/change-password",
+      const response = await Api.post(
+        "auth/change-password",
         { oldPassword, newPassword },
         {
           headers: {

@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import Api from '../utils/Api.js'
 import { FaSpinner } from "react-icons/fa";
-import TermsAndConditionsPopup from "../utils/terms_conditionPupup";
+import TermsAndConditionsPopup from "../utils/terms_conditionPupup.jsx"; // Ensure this path is correct
 import Mainlogo from "../assets/img/Main_logo.png";
 import toast from "react-hot-toast";
 import { locationData } from "../utils/LocationData";
-
 
 const Register = () => {
   const [selectedProvince, setSelectedProvince] = useState("");
@@ -34,19 +33,31 @@ const Register = () => {
   });
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [termsError, setTermsError] = useState("");
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
   const [canTickCheckbox, setCanTickCheckbox] = useState(false);
 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // Prevent numbers in the name field
+    if (name === "name" && /[0-9]/.test(value)) {
+      toast.error("Name cannot contain numbers.");
+      return; // Prevent updating the state if input is invalid
+    }
+
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     const { name } = e.target;
+
+    if (file && file.size > 1 * 1024 * 1024) {
+      toast.error("File size exceeds 1MB. Please upload a smaller file.");
+      return;
+    }
 
     setFormData({ ...formData, [name]: file });
 
@@ -59,19 +70,37 @@ const Register = () => {
     }
   };
 
+  const validatePhoneNumber = (phoneNo) => {
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phoneNo);
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    return emailRegex.test(email);
+  };
+
   const validateForm = () => {
-    const { name, email, phoneNo, dateOfBirth, province, profilePhoto, citizenshipImage } = formData;
+    const { name, email, phoneNo, dateOfBirth, profilePhoto, citizenshipImage } = formData;
 
     if (!name) {
       toast.error("Name is required.");
       return false;
     }
-    if (!email) {
-      toast.error("Email is required.");
+    if (!validateEmail(email)) {
+      toast.error("Please enter a valid Gmail address.");
+      return false;
+    }
+    if (email && !email.endsWith("@gmail.com" )) {
+      toast.error("Only Gmail addresses are allowed.");
       return false;
     }
     if (!phoneNo) {
       toast.error("Phone number is required.");
+      return false;
+    }
+    if (!validatePhoneNumber(phoneNo)) {
+      toast.error("Phone number must be 10 digits.");
       return false;
     }
     if (!dateOfBirth) {
@@ -83,7 +112,6 @@ const Register = () => {
     const today = new Date();
     const age = today.getFullYear() - dob.getFullYear();
     const monthDiff = today.getMonth() - dob.getMonth();
-
 
     if (age < 18) {
       toast.error("You must be at least 18 years old.");
@@ -122,8 +150,8 @@ const Register = () => {
         }
       });
 
-      const response = await axios.post(
-        "https://rentoora-backend-rental.onrender.com/auth/register",
+      const response = await Api.post(
+        "auth/register",
         formDataToSend,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -174,21 +202,22 @@ const Register = () => {
         <Link to="/client-login" className="hover:text-opacity-80 text-blue-600">
           <strong>Login</strong>
         </Link>
-        <p className="text-sm text-red-700 text-center capitalize">after register successfully check your Email for passowrd !</p>
+        <p className="text-[13px] text-red-700 text-center capitalize">After registering successfully, check your Email for  password !</p>
       </div>
-      {error && <div className="text-red-500 bg-red-200 w-fit mx-auto p-2 mt-2 rounded  text-center">{error}</div>}
-            {successMessage && (
-              <div className="text-green-500 text-center bg-red-200 w-fit mx-auto p-2 mt-2 rounded">{successMessage}</div>
-            )}
+
+      {error && <div className="text-red-500 bg-red-200 w-fit mx-auto p-2 mt-2 rounded text-center">{error}</div>}
+      {successMessage && (
+        <div className="text-green-500 text-center bg-red-200 w-fit mx-auto p-2 mt-2 rounded">{successMessage}</div>
+      )}
+
       <div className="mt-2 sm:mx-auto p-4 sm:w-1/2">
         <div className="relative bg-white py-6 px-4 shadow sm:rounded-lg sm:px-10">
-        
           <form className="space-y-5" onSubmit={handleSubmit}>
+            {/* Form Fields */}
             <div className="md:flex md:flex-row md:justify-between md:gap-12 flex flex-col gap-4">
+              {/* Name */}
               <div className="md:w-[80%] w-[100%]">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-600">
-                  Name
-                </label>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-600">Name</label>
                 <div className="mt-1">
                   <input
                     id="name"
@@ -200,11 +229,9 @@ const Register = () => {
                   />
                 </div>
               </div>
-
+              {/* Email */}
               <div className="md:w-[80%] w-[100%]">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-600">
-                  Email address
-                </label>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-600">Email address <span className="text-[12px]">(Business/School Email not Allowed)</span></label>
                 <div className="mt-1">
                   <input
                     id="email"
@@ -218,43 +245,40 @@ const Register = () => {
                 </div>
               </div>
             </div>
+
+            {/* Other Fields */}
             <div className="md:flex md:flex-row md:justify-between md:gap-12 flex flex-col gap-4">
               <div className="md:w-[80%] w-[100%]">
-                <label htmlFor="phoneNo" className="block text-sm font-medium text-gray-600">
-                  Phone Number
-                </label>
+                <label htmlFor="phoneNo" className="block text-sm font-medium text-gray-600">Phone Number</label>
                 <div className="mt-1">
                   <input
                     id="phoneNo"
                     name="phoneNo"
-                    type="tel"
+                    type="text"
                     value={formData.phoneNo}
                     onChange={handleChange}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
               </div>
+
               <div className="md:w-[80%] w-[100%]">
-                <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-600">
-                  Date of Birth
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    type="date"
-                    value={formData.dateOfBirth}
-                    onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  />
-                </div>
+                <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-600">Date of Birth</label>
+                <input
+                  id="dateOfBirth"
+                  name="dateOfBirth"
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
               </div>
             </div>
+
+            {/* Location Selects */}
             <div className="md:flex md:flex-row md:justify-between md:gap-12 flex flex-col gap-4">
               <div className="md:w-[80%] w-[100%]">
-                <label htmlFor="province" className="block text-sm font-medium text-gray-600">
-                  Province
-                </label>
+                <label htmlFor="province" className="block text-sm font-medium text-gray-600">Province</label>
                 <select
                   value={selectedProvince}
                   onChange={(e) => {
@@ -274,9 +298,7 @@ const Register = () => {
                 </select>
               </div>
               <div className="md:w-[80%] w-[100%]">
-                <label htmlFor="district" className="block text-sm font-medium text-gray-600">
-                  District
-                </label>
+                <label htmlFor="district" className="block text-sm font-medium text-gray-600">District</label>
                 <select
                   value={selectedDistrict}
                   onChange={(e) => {
@@ -295,10 +317,10 @@ const Register = () => {
                 </select>
               </div>
             </div>
+
+            {/* Municipality Select */}
             <div className="md:w-[100%] w-[100%]">
-              <label htmlFor="municipality" className="block text-sm font-medium text-gray-600">
-                Municipality
-              </label>
+              <label htmlFor="municipality" className="block text-sm font-medium text-gray-600">Municipality</label>
               <select
                 value={selectedMunicipality}
                 onChange={(e) => {
@@ -316,11 +338,10 @@ const Register = () => {
               </select>
             </div>
 
+            {/* File Uploads */}
             <div className="md:flex md:flex-row md:justify-between md:gap-12 flex flex-col gap-4">
               <div className="md:w-[80%] w-[100%]">
-                <label htmlFor="profilePhoto" className="block text-sm font-medium text-gray-600">
-                  Profile Photo
-                </label>
+                <label htmlFor="profilePhoto" className="block text-sm font-medium text-gray-600">Profile Photo</label>
                 <input
                   id="profilePhoto"
                   name="profilePhoto"
@@ -339,9 +360,7 @@ const Register = () => {
               </div>
 
               <div className="md:w-[80%] w-[100%]">
-                <label htmlFor="citizenshipImage" className="block text-sm font-medium text-gray-600">
-                  Citizenship Image
-                </label>
+                <label htmlFor="citizenshipImage" className="block text-sm font-medium text-gray-600">Citizenship Image</label>
                 <input
                   id="citizenshipImage"
                   name="citizenshipImage"
@@ -360,6 +379,7 @@ const Register = () => {
               </div>
             </div>
 
+            {/* Terms and Conditions */}
             <div className="flex items-center">
               <input
                 id="terms"
@@ -368,6 +388,8 @@ const Register = () => {
                 onChange={() => {
                   if (canTickCheckbox) {
                     setIsTermsAccepted(!isTermsAccepted);
+                  } else {
+                    toast.error("Please read and accept the terms first.");
                   }
                 }}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
@@ -380,10 +402,11 @@ const Register = () => {
                 onClick={openTerms}
                 className="ml-1 text-blue-600 hover:underline"
               >
-                Read
+                Read me to Accept!
               </button>
             </div>
 
+            {/* Submit Button */}
             <div className="flex justify-center">
               <button
                 type="submit"
@@ -395,10 +418,11 @@ const Register = () => {
                 {loading ? <FaSpinner className="animate-spin" /> : "Register"}
               </button>
             </div>
-            
           </form>
         </div>
       </div>
+
+      {/* Terms and Conditions Popup */}
       <TermsAndConditionsPopup
         isOpen={isTermsOpen}
         onClose={closeTerms}
