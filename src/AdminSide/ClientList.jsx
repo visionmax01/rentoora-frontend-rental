@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { FaTrash, FaEye, FaEdit } from "react-icons/fa";
 import AdminNav from "./adminNav";
-import { toast } from "react-hot-toast"; 
-import UpdateClient from "./UpdateClient"; 
-import Api from '../utils/Api.js'
-
+import { toast } from "react-toastify";
+import UpdateClient from "./UpdateClient";
+import Api from "../utils/Api.js";
 
 const ClientsTable = () => {
   const [clients, setClients] = useState([]);
@@ -14,21 +13,18 @@ const ClientsTable = () => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
-  const [showDeletePopup, setShowDeletePopup] = useState(false); 
-  const [clientToDelete, setClientToDelete] = useState(null); 
-  const [searchTerm, setSearchTerm] = useState(""); 
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const response = await Api.get(
-          "admin/all-clients",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        const response = await Api.get("admin/all-clients", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         setClients(response.data);
         setLoading(false);
       } catch (err) {
@@ -52,14 +48,11 @@ const ClientsTable = () => {
 
   const confirmDeleteClient = async () => {
     try {
-      await Api.delete(
-        `admin/delete-client/${clientToDelete.accountId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      await Api.delete(`admin/delete-client/${clientToDelete.accountId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       setClients(
         clients.filter(
           (client) => client.accountId !== clientToDelete.accountId
@@ -67,7 +60,7 @@ const ClientsTable = () => {
       );
       setShowDeletePopup(false);
       setClientToDelete(null);
-      toast.success("Client & Associated Document deleted successfully!"); 
+      toast.success("Client & Associated Document deleted successfully!");
     } catch (err) {
       setError("Error deleting client");
       setShowDeletePopup(false);
@@ -83,16 +76,16 @@ const ClientsTable = () => {
   const indexOfLastClient = currentPage * clientsPerPage;
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
 
- // Filter clients based on search term
-const filteredClients = clients.filter((client) => {
-  const clientName = client.name.toLowerCase(); // Convert name to lowercase
-  const clientId = client.accountId.toString().toLowerCase(); // Convert account ID to lowercase string
+  // Filter clients based on search term
+  const filteredClients = clients.filter((client) => {
+    const clientName = client.name.toLowerCase(); // Convert name to lowercase
+    const clientId = client.accountId.toString().toLowerCase(); // Convert account ID to lowercase string
 
-  return (
-    clientName.includes(searchTerm.toLowerCase()) || // Check if name includes search term
-    clientId.includes(searchTerm.toLowerCase()) // Check if account ID includes search term
-  );
-});
+    return (
+      clientName.includes(searchTerm.toLowerCase()) || // Check if name includes search term
+      clientId.includes(searchTerm.toLowerCase()) // Check if account ID includes search term
+    );
+  });
 
   const currentClients = filteredClients.slice(
     indexOfFirstClient,
@@ -122,7 +115,9 @@ const filteredClients = clients.filter((client) => {
       <AdminNav />
       <div className="container mx-auto  w-[100%]">
         <div className="flex md:flex-row flex-col justify-between items-center md:w-full ">
-          <h2 className="text-2xl font-bold mb-4 text-brand-bgColor">Available Client's</h2>
+          <h2 className="text-2xl font-bold mb-4 text-brand-bgColor">
+            Available Client's
+          </h2>
           {/* Search Input */}
           <div className="mb-4 flex justify-end items-center  ">
             <div className="bg-blue-700 rounded flex items-center">
@@ -138,97 +133,123 @@ const filteredClients = clients.filter((client) => {
           </div>
         </div>
 
+        {/* Large Device View - Hidden on Small Devices */}
+        <div className="overflow-x-auto hidden sm:block">
+          <table className="w-full border border-gray-300 p-4">
+            <thead className="w-fit">
+              <tr className="bg-gray-200  text-left">
+                <th className="py-2 px-4 border-b">#</th>
+                <th className="py-2 px-4 border-b">Profile Pic</th>
+                <th className="py-2 px-4 border-b">Name</th>
+                <th className="py-2 px-4 border-b">Email</th>
+                <th className="py-2 px-4 border-b">Phone No</th>
+                <th className="py-2 px-4 border-b">Address</th>
+                <th className="py-2 px-4 border-b">Account ID</th>
+                <th className="py-2 px-4 border-b">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="w-fit ">
+              {currentClients.map((client, index) => (
+                <tr key={client.accountId} className="hover:bg-gray-100">
+                  <td className="py-2 px-4 border-b">
+                    {index + 1 + indexOfFirstClient}
+                  </td>
+                  <td className="py-2 px-4 border-b">
+                    <img
+                      className="rounded-full w-6 h-6"
+                      src={client.profilePhotoPath}
+                      alt="Profile"
+                    />
+                  </td>
+                  <td className="py-2 px-4 border-b">{client.name}</td>
+                  <td className="py-2 px-4 border-b">{client.email}</td>
+                  <td className="py-2 px-4 border-b">{client.phoneNo}</td>
+                  <td className="py-2 px-4 border-b">
+                    {client.province}, {client.district}, {client.municipality}
+                  </td>
+                  <td className="py-2 px-4 border-b">{client.accountId}</td>
+                  <td className="py-2 px-4 border-b">
+                    <button
+                      className="text-blue-500 hover:text-blue-700 mr-2"
+                      onClick={() => handleViewDetails(client)}
+                    >
+                      <FaEye />
+                    </button>
+                    <button
+                      className="text-green-500 hover:text-green-700 mr-2"
+                      onClick={() => handleEditClick(client)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleDeleteClick(client)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-{/* Large Device View - Hidden on Small Devices */}
-<div className="overflow-x-auto hidden sm:block">
-  <table className="w-full border border-gray-300 p-4">
-    <thead className="w-fit">
-      <tr className="bg-gray-200  text-left">
-        <th className="py-2 px-4 border-b">#</th>
-        <th className="py-2 px-4 border-b">Profile Pic</th>
-        <th className="py-2 px-4 border-b">Name</th>
-        <th className="py-2 px-4 border-b">Email</th>
-        <th className="py-2 px-4 border-b">Phone No</th>
-        <th className="py-2 px-4 border-b">Address</th>
-        <th className="py-2 px-4 border-b">Account ID</th>
-        <th className="py-2 px-4 border-b">Actions</th>
-      </tr>
-    </thead>
-    <tbody className="w-fit ">
-      {currentClients.map((client, index) => (
-        <tr key={client.accountId} className="hover:bg-gray-100">
-          <td className="py-2 px-4 border-b">
-            {index + 1 + indexOfFirstClient}
-          </td>
-          <td className="py-2 px-4 border-b">
-            <img
-              className="rounded-full w-6 h-6"
-              src={client.profilePhotoPath}
-              alt="Profile"
-            />
-          </td>
-          <td className="py-2 px-4 border-b">{client.name}</td>
-          <td className="py-2 px-4 border-b">{client.email}</td>
-          <td className="py-2 px-4 border-b">{client.phoneNo}</td>
-          <td className="py-2 px-4 border-b">{client.province}, {client.district}, {client.municipality}</td>
-          <td className="py-2 px-4 border-b">{client.accountId}</td>
-          <td className="py-2 px-4 border-b">
-            <button className="text-blue-500 hover:text-blue-700 mr-2" onClick={() => handleViewDetails(client)}>
-              <FaEye />
-            </button>
-            <button className="text-green-500 hover:text-green-700 mr-2" onClick={() => handleEditClick(client)}>
-              <FaEdit />
-            </button>
-            <button className="text-red-500 hover:text-red-700" onClick={() => handleDeleteClick(client)}>
-              <FaTrash />
-            </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
-{/* Small Device View - Hidden on Large Devices */}
-<div className="overflow-x-auto sm:hidden">
-  <table className="min-w-full bg-white border  border-gray-300">
-    <thead className="w-full">
-      <tr className="bg-gray-200 text-gray-700 text-left">
-        <th className="px-2 py-3 text-[15.2px] border-b">#</th>
-        <th className="px-2 py-3 text-[15.2px] border-b">Pic</th>
-        <th className="px-2 py-3 text-[15.2px] border-b">Name</th>
-        <th className="px-2 py-3 text-[15.2px] border-b">Account ID</th>
-        <th className="px-2 py-3 text-[15.2px] border-b">Actions</th>
-      </tr>
-    </thead>
-    <tbody className="w-full">
-      {currentClients.map((client, index) => (
-        <tr key={client.accountId} className="hover:bg-gray-100">
-          <td className="px-2 py-3 text-[15.2px] border-b">
-            {index + 1 + indexOfFirstClient}
-          </td>
-          <td className="px-2 py-3 text-[15.2px] border-b">
-            <img className="rounded-full w-6 h-6" src={client.profilePhotoPath} alt="Profile" />
-          </td>
-          <td className="px-2 py-3 text-[15.2px] border-b">{client.name}</td>
-          <td className="px-2 py-3 text-[15.2px] border-b">{client.accountId}</td>
-          <td className="px-2 py-3 text-[15.2px] border-b">
-            <button className="text-blue-500 hover:text-blue-700 mr-2" onClick={() => handleViewDetails(client)}>
-              <FaEye />
-            </button>
-            <button className="text-green-500 hover:text-green-700 mr-2" onClick={() => handleEditClick(client)}>
-              <FaEdit />
-            </button>
-            <button className="text-red-500 hover:text-red-700" onClick={() => handleDeleteClick(client)}>
-              <FaTrash />
-            </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
+        {/* Small Device View - Hidden on Large Devices */}
+        <div className="overflow-x-auto sm:hidden">
+          <table className="min-w-full bg-white border  border-gray-300">
+            <thead className="w-full">
+              <tr className="bg-gray-200 text-gray-700 text-left">
+                <th className="px-2 py-3 text-[15.2px] border-b">#</th>
+                <th className="px-2 py-3 text-[15.2px] border-b">Pic</th>
+                <th className="px-2 py-3 text-[15.2px] border-b">Name</th>
+                <th className="px-2 py-3 text-[15.2px] border-b">Account ID</th>
+                <th className="px-2 py-3 text-[15.2px] border-b">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="w-full">
+              {currentClients.map((client, index) => (
+                <tr key={client.accountId} className="hover:bg-gray-100">
+                  <td className="px-2 py-3 text-[15.2px] border-b">
+                    {index + 1 + indexOfFirstClient}
+                  </td>
+                  <td className="px-2 py-3 text-[15.2px] border-b">
+                    <img
+                      className="rounded-full w-6 h-6"
+                      src={client.profilePhotoPath}
+                      alt="Profile"
+                    />
+                  </td>
+                  <td className="px-2 py-3 text-[15.2px] border-b">
+                    {client.name}
+                  </td>
+                  <td className="px-2 py-3 text-[15.2px] border-b">
+                    {client.accountId}
+                  </td>
+                  <td className="px-2 py-3 text-[15.2px] border-b">
+                    <button
+                      className="text-blue-500 hover:text-blue-700 mr-2"
+                      onClick={() => handleViewDetails(client)}
+                    >
+                      <FaEye />
+                    </button>
+                    <button
+                      className="text-green-500 hover:text-green-700 mr-2"
+                      onClick={() => handleEditClick(client)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleDeleteClick(client)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* Pagination */}
         <div className="flex justify-between mt-4 lg:px-0 px-8">
@@ -283,10 +304,12 @@ const filteredClients = clients.filter((client) => {
 
       {/* Update Client Popup */}
       {showEditPopup && (
-        <UpdateClient
-          client={selectedClient}
-          onClose={() => setShowEditPopup(false)}
-        />
+        <div>
+          <UpdateClient
+            client={selectedClient}
+            onClose={() => setShowEditPopup(false)}
+          />
+        </div>
       )}
 
       {/* View Client Details Popup */}
@@ -298,30 +321,32 @@ const filteredClients = clients.filter((client) => {
               <span className="font-bold uppercase">{selectedClient.name}</span>
             </h3>
             <div className="flex gap-8 mb-3">
-            <div className=" text-center w-fit bg-gray-200 rounded">
-              <img
-                className="rounded w-32 lg:h-32 h-24 "
-                src={selectedClient.profilePhotoPath}
-                alt="No Profile pic"
-              />
-              <p className="font-bold text-gray-400  uppercase">profile Pic</p>
-              
+              <div className=" text-center w-fit bg-gray-200 rounded">
+                <img
+                  className="rounded w-32 lg:h-32 h-24 "
+                  src={selectedClient.profilePhotoPath}
+                  alt="No Profile pic"
+                />
+                <p className="font-bold text-gray-400  uppercase">
+                  profile Pic
+                </p>
+              </div>
+
+              <div className="text-center w-fit rounded bg-gray-200 p-2">
+                <img
+                  className="rounded w-44 lg:h-32 h-24 "
+                  src={selectedClient.citizenshipImagePath}
+                  alt="No image Available"
+                />
+                <p className="font-bold text-gray-400  uppercase">
+                  Citizenship{" "}
+                </p>
+              </div>
             </div>
 
-            <div className="text-center w-fit rounded bg-gray-200 p-2">
-              <img
-                className="rounded w-44 lg:h-32 h-24 "
-                src={selectedClient.citizenshipImagePath}
-                alt="No image Available"
-              />
-              <p className="font-bold text-gray-400  uppercase">Citizenship </p>
-              
-            </div>
-            </div>
-            
             <table className="w-full table-auto border-collapse border border-gray-300">
               <tbody>
-              <tr>
+                <tr>
                   <td className="font-bold pr-4 border border-gray-200 py-2 pl-2">
                     Account ID:
                   </td>
@@ -350,7 +375,8 @@ const filteredClients = clients.filter((client) => {
                     Address:
                   </td>
                   <td className="border border-gray-200 py-2 pl-2 ">
-                    {selectedClient.province}, {selectedClient.district}, {selectedClient.municipality}
+                    {selectedClient.province}, {selectedClient.district},{" "}
+                    {selectedClient.municipality}
                   </td>
                 </tr>
                 <tr>
@@ -368,14 +394,12 @@ const filteredClients = clients.filter((client) => {
                     )}
                   </td>
                 </tr>
-
-                
               </tbody>
             </table>
             <div className="absolute top-0 right-0 ">
               <button
                 onClick={() => setShowPopup(false)}
-                className="  px-3 py-2 font-bold bg-gray-700 text-gray-200 hover:text-red-300 rounded-tr-lg "
+                className="bg-gray-300 absolute top-2 right-2 text-red-600 hover:text-red-300 px-4 py-2 rounded"
               >
                 X
               </button>

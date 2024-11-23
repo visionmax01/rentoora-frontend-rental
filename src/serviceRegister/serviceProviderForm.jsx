@@ -31,7 +31,7 @@ const ServiceProviderForm = ({ isOpen, onClose }) => {
     let isValid = true;
     const requiredFields = {
       1: [],
-      2: ['serviceType', 'experience', 'workingFrom', 'workingTo'],
+      2: ['serviceType', 'experience',  'workingFrom', 'workingTo'],
       3: ['examAnswers'],
       4: ['certificate']
     };
@@ -73,12 +73,12 @@ const ServiceProviderForm = ({ isOpen, onClose }) => {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: '-100vh', opacity: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="bg-white w-full max-w-4xl mx-auto rounded-lg shadow-lg p-6 relative h-fit max-h-3/4"
+        className="bg-white w-full max-w-4xl mx-auto rounded-lg shadow-lg lg:p-6 p-1 relative h-fit max-h-3/4"
       >
-        <button onClick={onClose} className="absolute top-1 right-2 text-xl font-bold">&times;</button>
+        <button onClick={onClose} className="bg-gray-300 absolute top-2 right-2 text-red-600 hover:text-red-300 px-4 py-2 rounded">&times;</button>
         <div className="container mx-auto">
           <div className="flex">
-            <div className="w-1/4 pr-4">
+            <div className="w-1/4 lg:pr-4 pr-1">
               <ul className="steps space-y-4">
                 {['Personal Information', 'Service Selection', 'Exam', 'Upload Certificate', 'Preview & Submit'].map((label, index) => {
                   const stepIndex = index + 1;
@@ -95,7 +95,7 @@ const ServiceProviderForm = ({ isOpen, onClose }) => {
                         <span className={`font-semibold ${isActive ? 'text-white' : 'text-gray-600'}`}>
                           {stepIndex}.
                         </span>
-                        <span>{label}</span>
+                        <span className="hidden sm:block">{label}</span>
                       </span>
                       {isCompleted !== undefined && (
                         <FontAwesomeIcon
@@ -108,7 +108,7 @@ const ServiceProviderForm = ({ isOpen, onClose }) => {
                 })}
               </ul>
             </div>
-            <div className="w-3/4 border p-4 rounded-md">
+            <div className="lg:w-3/4 lg:h-[500px] h-[650px] border lg:p-4  p-1 rounded-md">
               {step === 1 && <PersonalInfo formData={formData} handleChange={handleChange} handleNext={handleNext} />}
               {step === 2 && <ServiceSelection formData={formData} handleChange={handleChange} handlePrev={handlePrev} handleNext={handleNext} />}
               {step === 3 && <ExamSection formData={formData} handleChange={handleChange} handlePrev={handlePrev} handleNext={handleNext} />}

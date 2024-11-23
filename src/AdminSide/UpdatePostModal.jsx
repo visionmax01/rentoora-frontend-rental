@@ -24,7 +24,7 @@ const UpdatePostModal = ({ isOpen, onClose, onUpdate, post, isupdating }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-4 rounded shadow-md lg:w-1/2 w-full mx-4">
+      <div className="bg-white relative p-4 rounded shadow-md lg:w-1/2 w-full mx-4">
         <h2 className="text-lg font-bold">Update Post</h2>
         <div className="mt-4">
           <label className="block mb-1">Rental Type</label>
@@ -73,11 +73,11 @@ const UpdatePostModal = ({ isOpen, onClose, onUpdate, post, isupdating }) => {
             )}
           </button>
           <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
-          >
-            Cancel
-          </button>
+              onClick={onClose}
+              className="bg-gray-300 absolute top-2 right-2 text-red-600 hover:text-red-300 px-4 py-2 rounded"
+            >
+              X
+            </button>
         </div>
       </div>
     </div>

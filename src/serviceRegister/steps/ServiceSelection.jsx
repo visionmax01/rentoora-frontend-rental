@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Clock, ChevronUp, ChevronDown } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 // Custom TimePicker Component
 const TimePicker = ({ value, onChange, className }) => {
@@ -185,23 +186,44 @@ const ServiceSelection = ({ formData, handleChange, handleNext, handlePrev }) =>
     handleChange({ workingTo: value });
   };
 
-  const validateForm = () => {
-    if (!formData.serviceType) {
-      alert('Please select a service type');
-      return false;
-    }
-    if (!formData.workingFrom || !formData.workingTo) {
-      alert('Please select working hours');
-      return false;
-    }
-    if (!formData.experience) {
-      alert('Please enter your years of experience');
-      return false;
-    }
-    return true;
+  const handleRateChange = (e) => {
+    const value = e.target.value;
+    handleChange({ rateCharge: Number(value) });
   };
 
+  const validateForm = () => {
+    let isValid = true;
+    
+    if (!formData.serviceType) {
+      toast.error('Please select a service type');
+      isValid = false;
+    }
+    if (!formData.workingFrom || !formData.workingTo) {
+      toast.error('Please select working hours');
+      isValid = false;
+    }
+    if (!formData.experience) {
+      toast.error('Please enter your years of experience');
+      isValid = false;
+    }
+    if (!formData.rateCharge) {
+      toast.error('Please enter hourly rate');
+      isValid = false;
+    } else {
+      const rate = parseInt(formData.rateCharge);
+      if (rate < 100 || rate > 500) {
+        toast.error('Hourly rate must be between ₹100 and ₹500');
+        isValid = false;
+      }
+    }
+    return isValid;
+  };
 
+  const handleNextClick = () => {
+    if (validateForm()) {
+      handleNext();
+    }
+  };
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-sm max-w-2xl mx-auto">
@@ -256,7 +278,7 @@ const ServiceSelection = ({ formData, handleChange, handleNext, handlePrev }) =>
           </div>
         </div>
       </div>
-
+<div className="flex lg:flex-row gap-16">
       {/* Experience Input */}
       <div className="mb-8">
         <label className="block text-lg font-semibold mb-2 text-gray-800">
@@ -267,12 +289,28 @@ const ServiceSelection = ({ formData, handleChange, handleNext, handlePrev }) =>
           name="experience"
           value={formData.experience || ''}
           onChange={(e) => handleChange({ experience: e.target.value })}
-          className="border rounded-lg px-3 py-2 w-24 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          min="0"
+          className="border w-32 rounded-lg px-3 py-2  focus:outline-none focus:ring-2 focus:ring-purple-500"
           placeholder="0"
         />
       </div>
 
+      {/* Rate Charge Input */}
+      <div className="mb-8">
+        <label className="block text-lg font-semibold mb-2 text-gray-800">
+          Hourly Rate (₹)
+        </label>
+        <input
+          type="number"
+          name="rateCharge"
+          value={formData.rateCharge || ''}
+          onChange={handleRateChange}
+          min="100"
+          max="500"
+          className="border rounded-lg px-3 py-2 w-32 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          placeholder="100"
+        />
+      </div>
+      </div>
       {/* Navigation Buttons */}
       <div className="absolute bottom-2 right-6 gap-12 flex justify-between mt-8">
         <button
@@ -282,7 +320,7 @@ const ServiceSelection = ({ formData, handleChange, handleNext, handlePrev }) =>
           Previous
         </button>
         <button
-          onClick={handleNext}
+          onClick={handleNextClick}
           className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
         >
           Next

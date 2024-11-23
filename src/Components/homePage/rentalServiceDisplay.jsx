@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import Api from "../../utils/Api.js";
-import toast from "react-hot-toast";
+import {toast} from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { FaSpinner } from "react-icons/fa";
 import NavBar from "../../Components/NavBar.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
+import { faLocationDot, faSearch, faXmark } from "@fortawesome/free-solid-svg-icons";
 import Fuse from "fuse.js";
-import Skeleton from "react-loading-skeleton"; // Import the Skeleton component
-import 'react-loading-skeleton/dist/skeleton.css'; // Import skeleton CSS for default styling
-import sale from "../../assets/img/for-rent.png";
+import Skeleton from "react-loading-skeleton";
+import 'react-loading-skeleton/dist/skeleton.css'; 
+import { motion } from "framer-motion";
 
 const RentalServiceDisplay = () => {
   const [posts, setPosts] = useState([]);
@@ -22,6 +22,9 @@ const RentalServiceDisplay = () => {
   const navigate = useNavigate();
   const searchInputRef = useRef(null);
   const defaultPostsToShow = 8;
+  const [searchContainerOpen, setSearchContainerOpen] = useState(false);
+  const [selectedPostType, setSelectedPostType] = useState("");
+  const serviceTypes = ["Room", "Apartment", "House"];
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -45,20 +48,6 @@ const RentalServiceDisplay = () => {
       searchInputRef.current.focus();
     }
   }, []);
-
-  const highlightText = (text, searchTerm) => {
-    if (!searchTerm) return text;
-    const regex = new RegExp(`(${searchTerm})`, "gi");
-    return text.split(regex).map((part, index) =>
-      regex.test(part) ? (
-        <span key={index} className="bg-yellow-300">
-          {part}
-        </span>
-      ) : (
-        part
-      )
-    );
-  };
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
@@ -110,140 +99,162 @@ const RentalServiceDisplay = () => {
     navigate(`/rental/${postId}`);
   };
 
+  const getFilteredPosts = () => {
+    let filteredPosts = searchAttempted ? searchResults : posts;
+    
+    // Filter by service type if selected
+    if (selectedPostType) {
+      filteredPosts = filteredPosts.filter(
+        post => post.postType === selectedPostType
+      );
+    }
+
+    // Filter to only show Room, Apartment, and House
+    filteredPosts = filteredPosts.filter(
+      post => serviceTypes.includes(post.postType)
+    );
+
+    return filteredPosts.slice(0, defaultPostsToShow);
+  };
+
   if (error) return <div className="text-red-500 text-center">{error}</div>;
 
   return (
     <>
-      <NavBar />
-      <div className="container mx-auto bg-white p-6">
-        <h1 className="text-2xl font-bold mb-4 text-center">
-          ALL AVAILABLE RENTALS
-        </h1>
-
-        <div className="mb-4 flex justify-center space-x-2">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyPress={handleKeyPress}
-            ref={searchInputRef}
-            placeholder="Search by type, location, etc."
-            className="border-2 outline-none p-2 w-[300px] border-blue-700 focus:border-blue-700"
-          />
-          <button
-            onClick={handleSearch}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      <div className="min-h-screen relative bg-gradient-to-b from-blue-100 to-purple-100">
+        <NavBar />
+        
+        {/* Search Container */}
+        <div className={`fixed top-0 left-0 z-50 w-full ${searchContainerOpen ? '' : 'pointer-events-none'}`}>
+          <motion.div
+            initial={{ y: -200, opacity: 0 }}
+            animate={{ y: searchContainerOpen ? 0 : -200, opacity: searchContainerOpen ? 1 : 0 }}
+            transition={{ duration: 0.5 }}
+            className="w-full bg-gradient-to-l from-blue-100 to-purple-100 shadow-md pointer-events-auto"
           >
-            Search
-          </button>
+            <div className="container mx-auto px-4 py-3">
+              <div className="flex flex-wrap items-center lg:gap-8 pt-12 lg:pt-0">
+                <div className="flex w-full lg:w-1/4 gap-2">
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    ref={searchInputRef}
+                    placeholder="Search by type, location, etc."
+                    className="border border-gray-300 rounded py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <button
+                    onClick={handleSearch}
+                    className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded transition-colors duration-300"
+                  >
+                    <FontAwesomeIcon icon={faSearch} />
+                  </button>
+                </div>
+
+                <div className="w-full lg:w-fit mt-4 lg:mt-0">
+                  <select
+                    value={selectedPostType}
+                    onChange={(e) => setSelectedPostType(e.target.value)}
+                    className="border border-gray-300 rounded py-2 px-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  >
+                    <option value="">All Service Types</option>
+                    {serviceTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
-        {isSearching && (
-          <div className="flex items-center justify-center mt-10">
-            <FaSpinner className="animate-spin h-10 w-10" />
-          </div>
-        )}
+        {/* Toggle Search Button */}
+        <button
+          onClick={() => setSearchContainerOpen(!searchContainerOpen)}
+          className="fixed top-4 right-4 z-50 bg-blue-600 hover:bg-blue-700 text-white h-8 w-8 rounded shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110"
+        >
+          <FontAwesomeIcon className="text-sm" icon={searchContainerOpen ? faXmark : faSearch} />
+        </button>
 
-        <div className="w-full flex justify-center p-4">
-          <div className="flex flex-wrap justify-center gap-8">
-            {(searchAttempted
-              ? searchResults
-              : posts.slice(0, defaultPostsToShow)
-            ).length > 0
-              ? (searchAttempted
-                  ? searchResults
-                  : posts.slice(0, defaultPostsToShow)
-                ).map((post) => (
-                  <div
-                    key={post._id}
-                    className="transform h-fit transition duration-300 hover:scale-105 w-[325px] border-brand-lightGrow border relative rounded-lg shadow-lg overflow-hidden group"
-                  >
-                    <div className="relative">
-                      {loading ? ( // Show custom skeleton if loading
-                        <div className="bg-gray-200 h-44">
-                          <Skeleton height={176} />
-                          <div className="p-4">
-                            <Skeleton count={2} height={20} />
-                            <Skeleton width="60%" height={20} className="mt-2" />
-                          </div>
-                        </div>
-                      ) : Array.isArray(post.images) && post.images.length > 0 ? (
-                        <div className="w-full h-44 relative">
-                          <img
-                            src={post.images[0]}
-                            alt={post.postType}
-                            className="w-full h-full object-cover object-center rounded-t-lg"
-                          />
-                          <h2 className="text-2xl w-full font-bold absolute top-0 left-0 uppercase text-brand-white pt-1 text-center bg-yellow-600">
-                            {highlightText(post.postType, searchTerm)}
-                          </h2>
-                          <img
-                            className="w-12 h-12 absolute top-3 shadow-lg shadow-white/25 right-3"
-                            src={sale}
-                            alt=""
-                          />
-                          {/* Red Banner for Price */}
-                          <div className="absolute bottom-0 w-full justify-center flex text-center left-0 text-white text-xl font-extrabold transform">
-                            <div className="bg-green-400 w-full flex items-center px-2 py-1 relative">
-                              <p className="w-full text-center">
-                                Rs. {Number(post.price).toLocaleString("en-IN")}
-                              </p>
-                              <p className="absolute right-0 w-1 h-1/2 bg-white "></p>
-                              <p className="absolute left-0 w-1 h-1/2 bg-white "></p>
-                            </div>
-                          </div>
+        {/* Main Content */}
+        <div className="mx-auto px-4 py-8">
+          {isSearching && (
+            <div className="flex items-center justify-center mt-10">
+              <FaSpinner className="animate-spin h-10 w-10" />
+            </div>
+          )}
 
-                          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              className="bg-blue-400/40 hover:bg-green-400 font-bold px-4 py-2 rounded"
-                              onClick={() => handleViewPost(post._id)}
-                            >
-                              BOOK NOW
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-gray-500 text-center h-36 flex items-center justify-center bg-brand-bgColor rounded-t-lg">
-                          No image available
-                        </p>
-                      )}
+          <motion.div
+            className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 lg:gap-8"
+            initial={{ y: '10px', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            {getFilteredPosts().map((post) => (
+              <motion.div
+                key={post._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white h-fit rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl"
+              >
+                <div className="relative">
+                  {loading ? (
+                    <Skeleton height={200} />
+                  ) : Array.isArray(post.images) && post.images.length > 0 ? (
+                    <div className="relative h-36 sm:h-48">
+                      <img
+                        src={post.images[0]}
+                        alt={post.postType}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70"></div>
+                      <h2 className="absolute bottom-0 left-0 w-full text-sm sm:text-xl font-bold text-white p-2 sm:p-4">
+                        {post.postType}
+                      </h2>
                     </div>
-
-                    <div className="py-2 px-4">
-                      <div className="flex gap-5 mb-2">
-                        <p>{highlightText(post.description, searchTerm)}</p>
-                      </div>
-
-                      {post.address ? (
-                        <div>
-                          <div className="flex gap-3">
-                            <p>
-                              <FontAwesomeIcon icon={faLocationDot} />
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              <strong>
-                                {highlightText(post.address.district, searchTerm)}
-                              </strong>
-                              ,{" "}
-                              <strong>
-                                {highlightText(post.address.municipality, searchTerm)}
-                              </strong>
-                              <strong className="text-sm ml-1">
-                                {highlightText(post.address.province, searchTerm)}
-                              </strong>
-                            </p>
-                          </div>
-                        </div>
-                      ) : null}
+                  ) : (
+                    <div className="h-36 sm:h-48 bg-gray-200 flex items-center justify-center text-gray-500">
+                      No image available
                     </div>
+                  )}
+                  <div className="absolute top-0 right-0 bg-green-500 text-white px-2 py-1 m-1 sm:m-2 rounded text-xs sm:text-sm font-bold">
+                    Rs. {Number(post.price).toLocaleString("en-IN")}
                   </div>
-                ))
-              : !loading && searchAttempted && (
-                  <p className="text-red-500 text-center">
-                    No results found for "{searchTerm}"
-                  </p>
-                )}
-          </div>
+                </div>
+
+                <div className="p-2 sm:p-4">
+                  <p className="text-gray-600 mb-2 text-xs sm:text-sm line-clamp-1">{post.description}</p>
+                  {post.address && (
+                    <div className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">
+                      <div className="flex items-center">
+                        <FontAwesomeIcon icon={faLocationDot} className="mr-1 sm:mr-2 text-blue-500" />
+                        <p className="truncate">
+                          {post.address.province}
+                        </p>
+                      </div>
+                      <p className="truncate">City: {post.address.landmark}</p>
+                    </div>
+                  )}
+                  <button
+                    className="mt-2 sm:mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 sm:py-2 px-2 sm:px-4 rounded-full text-xs sm:text-sm transition-colors duration-300"
+                    onClick={() => handleViewPost(post._id)}
+                  >
+                    BOOK NOW
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {getFilteredPosts().length === 0 && (
+            <div className="text-center mt-8 text-gray-600">
+              No properties found matching your criteria.
+            </div>
+          )}
         </div>
       </div>
     </>

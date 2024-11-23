@@ -19,7 +19,7 @@ const ResetPasswordFlow = () => {
   };
 
   return (
-    <div className='mt-8'>
+    <div className=''>
       {step === 1 && <ForgotPassword onOtpSent={handleOtpSent} />}
       {step === 2 && <OtpPage email={email} onOtpVerified={handleOtpVerified} />}
       {step === 3 && <ResetPassword email={email} />}

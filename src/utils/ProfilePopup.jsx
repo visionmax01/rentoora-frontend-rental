@@ -3,7 +3,7 @@ import Cropper from "react-easy-crop";
 import getCroppedImg from "./cropImage"; // Ensure this function is correctly defined
 import Api from '../utils/Api.js'
 import { XIcon } from "lucide-react";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import "react-easy-crop/react-easy-crop.css";
 import { FaSpinner } from 'react-icons/fa';
 

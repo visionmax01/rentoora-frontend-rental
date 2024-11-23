@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Api from '../utils/Api.js'
-import { toast } from "react-hot-toast";
+import Api from "../utils/Api.js";
+import { toast } from "react-toastify";
 import getLoggedInUserId from "../utils/getLoggedInUserId.jsx"; // Import the utility function
 
 function ReceivedOrder({ order, onClose }) {
@@ -50,12 +50,11 @@ function ReceivedOrder({ order, onClose }) {
       setPreviewImage(order.postId.images[0]); // Assuming images are stored as full URLs
     }
   }, [order]);
-  
+
   // Function to handle thumbnail click
   const handleThumbnailClick = (image) => {
     setPreviewImage(image); // Use the image URL directly
   };
-  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 text-black">
@@ -205,22 +204,21 @@ function ReceivedOrder({ order, onClose }) {
 
             {/* Cancel Order Button */}
             <div className="mt-6">
-            <button
-  className={`text-white px-4 py-1.5 rounded-sm ${
-    isLoading || order.orderStatus === "Order Canceled"
-      ? "bg-red-500 bg-opacity-50 cursor-not-allowed"
-      : "bg-red-500"
-  }`}
-  onClick={handleCancelOrder}
-  disabled={isLoading || order.orderStatus === "Order Canceled"} // Disable if loading or order is canceled
->
-  {isLoading
-    ? "Cancelling..."
-    : order.orderStatus === "Order Canceled"
-    ? "Order Cancelled"
-    : "Cancel Order"}
-</button>
-
+              <button
+                className={`text-white px-4 py-1.5 rounded-sm ${
+                  isLoading || order.orderStatus === "Order Canceled"
+                    ? "bg-red-500 bg-opacity-50 cursor-not-allowed"
+                    : "bg-red-500"
+                }`}
+                onClick={handleCancelOrder}
+                disabled={isLoading || order.orderStatus === "Order Canceled"} // Disable if loading or order is canceled
+              >
+                {isLoading
+                  ? "Cancelling..."
+                  : order.orderStatus === "Order Canceled"
+                  ? "Order Cancelled"
+                  : "Cancel Order"}
+              </button>
             </div>
 
             {/* Close button */}

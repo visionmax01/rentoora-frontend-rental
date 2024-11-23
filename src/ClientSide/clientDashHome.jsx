@@ -2,20 +2,22 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Menu,
   User,
-  HelpCircle,
   FileText,
   LayoutDashboard,
   ChevronDown,
   LogOut,
   Package,
   Eye,
+  Cable,
+  BookDown,
   Upload,
+  Home,
+  Key,
 } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Api from '../utils/Api.js'
 import CompanyLogo from "../assets/img/Main_logo.png";
 import manpng from "../assets/img/man.png";
-import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ClientHomePage from "./clientHomePage";
 import ClientProfile from "./clientProfile";
 import AllPost from "./displayClientPost";
@@ -25,6 +27,8 @@ import ChangePassword from "./ChangePassword";
 import ServicesSupport from './ServicesSuport';
 import MyOrders from "../Myorder/MyOrders";
 import MyBookedOrders from "./MyBookedOrders";
+import UserBookingList from "./bookedServicesP/UserBookingList.jsx";
+import ProviderBookingList from "./bookedServicesP/ProviderBookingList.jsx";
 
 const ClientDashHome = () => {
   const [user, setUser] = useState(null);
@@ -96,7 +100,8 @@ const ClientDashHome = () => {
   const handleClickOutside = (event) => {
     if (
       profileMenuRef.current &&
-      !profileMenuRef.current.contains(event.target)
+      !profileMenuRef.current.contains(event.target) &&
+      !event.target.closest('.profile-menu-button')
     ) {
       setProfileMenuOpen(false);
     }
@@ -122,12 +127,14 @@ const ClientDashHome = () => {
         return <AllPost />;
       case "Order_recieved":
         return <MyBookedOrders />;
-      case "Support":
-        return <ServicesSupport />;
       case "Create_post":
         return <ClientPost />;
       case "my_order":
         return <MyOrders />;
+        case "Booking-detail":
+        return <UserBookingList />;
+        case "Booking-Recieved":
+        return <ProviderBookingList />;
       case "change-password":
         return <ChangePassword />;
       default:
@@ -159,33 +166,35 @@ const ClientDashHome = () => {
         {isOpen ? <Menu /> : <Menu />}
       </button>
       <nav
-        className={`bg-brand-bodyColor h-screen py-24 pl-2 fixed top-0 left-0 z-40 transform ${
+        className={`bg-brand-bgColor h-screen py-24 pl-2 fixed top-0 left-0 z-40 transform ${
           isOpen ? "translate-x-0 w-44" : "w-16 -translate-x-0"
         } transition-all duration-500`}
       >
         <ul className="flex gap-4 flex-col">
-          {["Dashboard", "Profile", "View_posts", "my_order", "Order_recieved", "Support", "Create_post"].map((item) => (
+          {["Dashboard","View_posts", "my_order", "Order_recieved", "Create_post", "Booking-detail" , "Booking-Recieved"].map((item) => (
             <li key={item} className="relative group">
               <a
                 href="#"
-                className={`flex hover:bg-brand-bgColor hover:text-white items-center gap-2 w-full px-4 rounded-l-full py-2 ${
-                  activeComponent === item ? "bg-brand-bgColor text-white" : ""
+                className={`flex hover:bg-blue-300 hover:text-red-800 items-center gap-2 w-full px-4 rounded-l-full py-2 ${
+                  activeComponent === item 
+                    ? "bg-gradient-to-r from-blue-100 to-purple-100 text-red-800" 
+                    : "text-white"
                 }`}
                 onClick={() => handleComponentChange(item)}
               >
                 {item === "Dashboard" && <LayoutDashboard />}
-                {item === "Profile" && <User />}
                 {item === "View_posts" && <FileText />}
                 {item === "my_order" && <Eye />}
                 {item === "Order_recieved" && <Package  />}
-                {item === "Support" && <HelpCircle />}
+                {item === "Booking-detail" && <BookDown   />}
+                {item === "Booking-Recieved" && <Cable   />}
                 {item === "Create_post" && <Upload />}
-                {isOpen && <span>{item}</span>}
+                {isOpen && <span className={activeComponent === item ? "text-red-800" : ""}>{item}</span>}
               </a>
               {!isOpen && (
                 <div className="absolute hover:hidden flex items-center justify-center left-16 top-5 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:left-full transition-all duration-300">
                   <div className="w-6 h-6 bg-white rotate-45"></div>
-                  <div className="relative -ml-5 bg-white text-red-800 font-bold p-2 max-w-fit rounded">
+                  <div className="relative -ml-6 bg-black text-red-200 font-bold p-2 w-[170px] rounded-r">
                     {item}
                   </div>
                 </div>
@@ -193,6 +202,7 @@ const ClientDashHome = () => {
             </li>
           ))}
         </ul>
+        
       </nav>
       <aside
         className={`ml-auto transition-all duration-500 text-white ${
@@ -201,19 +211,19 @@ const ClientDashHome = () => {
         style={{ marginLeft: isOpen ? "11rem" : "4rem" }}
       >
         <div className="w-[100%] h-auto flex justify-end relative">
-          <div className="bg-gradient-to-l sticky top-0 from-brand-Colorpurple to-brand-dark w-full h-12 px-4 py-8 flex items-center justify-between">
-            <img src={CompanyLogo} className="h-10" alt="Company-logo" />
+          <div className="bg-gradient-to-r sticky top-0 from-brand-bgColor to-gray-400 w-full h-12 px-4 py-8 flex items-center justify-between">
+            <img src={CompanyLogo} className="lg:h-10 h-6" alt="Company-logo" />
             <div className="h-8 w-fit flex items-center justify-center px-4 relative">
               <span className="text-white capitalize font-semibold hidden sm:block lg:pr-8 p-3 py-1 bg-gray-400 rounded-l-full bg-opacity-25">
                 Welcome, {user.name}!
               </span>
               <button
-                className="bg-white px-2 py-1 rounded-md -ml-3 flex items-center"
+                className="bg-white px-2 py-1 rounded-md -ml-3 flex items-center profile-menu-button"
                 onClick={toggleProfileMenu}
               >
                 {profilePhoto ? (
                   <img
-                    className="profile-img w-8 h-8 rounded object-top object-cover bg-brand-dark"
+                    className="profile-img lg:w-8 lg:h-8 w-6 h-6 rounded object-top object-cover bg-brand-dark"
                     alt="Profile"
                     src={profilePhoto}
                   />
@@ -229,41 +239,45 @@ const ClientDashHome = () => {
             </div>
           </div>
         </div>
-        <main className="overflow-hidden h-screen bg-gray-100 ">{renderComponent()}</main>
+        <main className="overflow-hidden h-fit bg-transparent ">{renderComponent()}</main>
       </aside>
       {profileMenuOpen && (
         <div
           ref={profileMenuRef}
-          className="absolute z-50 top-14 right-8 bg-white w-[13rem] h-fit rounded-sm shadow-lg text-black"
+          className="absolute z-50 top-14 right-8 bg-white w-64 rounded-lg shadow-xl text-gray-800 overflow-hidden"
         >
-          <ul className="flex flex-col gap-2">
+          
+          <ul className="py-2">
             <li
               onClick={() => navigate("/")}
-              className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
+              className="flex items-center px-4 py-3 hover:bg-gray-100 transition duration-200 ease-in-out cursor-pointer"
             >
-              Return to Home
+              <Home className="w-5 h-5 mr-3 text-indigo-600" />
+              <span>Return to Home</span>
             </li>
             <li
               onClick={() => handleComponentChange("Profile")}
-              className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
+              className="flex items-center px-4 py-3 hover:bg-gray-100 transition duration-200 ease-in-out cursor-pointer"
             >
-              Profile
+              <User className="w-5 h-5 mr-3 text-indigo-600" />
+              <span>Profile</span>
             </li>
             <li
               onClick={() => handleComponentChange("change-password")}
-              className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
+              className="flex items-center px-4 py-3 hover:bg-gray-100 transition duration-200 ease-in-out cursor-pointer"
             >
-              Change Password
+              <Key className="w-5 h-5 mr-3 text-indigo-600" />
+              <span>Change Password</span>
             </li>
             <li
               onClick={handleLogout}
-              className="hover:bg-gray-300 rounded py-2 pl-4 cursor-pointer"
+              className="flex items-center px-4 py-3 hover:bg-gray-100 transition duration-200 ease-in-out cursor-pointer text-red-600"
             >
-              Logout &nbsp;
-              <LogOut className="inline-block mr-2" />
+              <LogOut className="w-5 h-5 mr-3" />
+              <span>Logout</span>
             </li>
           </ul>
-          <ArrowDropUpIcon className="text-white absolute -top-3 right-2" />
+          <div className="absolute top-0 right-4 w-4 h-4 bg-white transform rotate-45 -mt-2"></div>
         </div>
       )}
     </div>

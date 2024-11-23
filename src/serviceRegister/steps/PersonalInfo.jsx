@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import Api from '../../utils/aPI.JS'; 
-import { locationData } from '../../utils/locationData'; 
+import { locationData } from '../../utils/LocationData.jsx'; 
+import Select from 'react-select';
 
 const PersonalInfo = ({ formData, handleChange, handleNext, handlePrev }) => { 
   const [user, setUser] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [address, setAddress] = useState('');
   const [showAddAddressPopup, setShowAddAddressPopup] = useState(false);
+  
   const [newAddress, setNewAddress] = useState({
     province: '',
     district: '',
@@ -15,6 +17,9 @@ const PersonalInfo = ({ formData, handleChange, handleNext, handlePrev }) => {
   const [savedNewAddress, setSavedNewAddress] = useState('');
   const [addressChoice, setAddressChoice] = useState('current');
   const [error, setError] = useState('');
+  const [provinceOptions, setProvinceOptions] = useState([]);
+  const [districtOptions, setDistrictOptions] = useState([]);
+  const [municipalityOptions, setMunicipalityOptions] = useState([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -35,6 +40,45 @@ const PersonalInfo = ({ formData, handleChange, handleNext, handlePrev }) => {
 
     fetchUserData();
   }, []);
+
+  useEffect(() => {
+    const provinces = locationData.map(province => ({
+      value: province.name,
+      label: province.name
+    }));
+    setProvinceOptions(provinces);
+  }, []);
+
+  useEffect(() => {
+    if (newAddress.province) {
+      const province = locationData.find(p => p.name === newAddress.province);
+      if (province) {
+        const districts = province.districts.map(district => ({
+          value: district.name,
+          label: district.name
+        }));
+        setDistrictOptions(districts);
+      }
+    } else {
+      setDistrictOptions([]);
+    }
+  }, [newAddress.province]);
+
+  useEffect(() => {
+    if (newAddress.province && newAddress.district) {
+      const province = locationData.find(p => p.name === newAddress.province);
+      const district = province?.districts.find(d => d.name === newAddress.district);
+      if (district) {
+        const allMunicipalities = district.municipalities.map(municipality => ({
+          value: municipality,
+          label: municipality
+        }));
+        setMunicipalityOptions(allMunicipalities);
+      }
+    } else {
+      setMunicipalityOptions([]);
+    }
+  }, [newAddress.province, newAddress.district]);
 
   const handleAddAddress = () => {
     const formattedAddress = `${newAddress.province}, ${newAddress.district}, ${newAddress.municipality}`;
@@ -64,7 +108,7 @@ const PersonalInfo = ({ formData, handleChange, handleNext, handlePrev }) => {
       ) : (
         <div className="mb-4 ">
           <h2 className="text-xl font-bold mb-4">Personal Information</h2>
-          <div className="h-[380px] overflow-y-auto pr-4">
+          <div className="lg:h-[380px] h-[600px] overflow-y-auto pr-4">
           <div className="mb-4">
             <p>Name : <strong>{user.name}</strong></p>
             <p>Email : <strong>{user.email}</strong></p>
@@ -108,54 +152,70 @@ const PersonalInfo = ({ formData, handleChange, handleNext, handlePrev }) => {
           </button>
           {showAddAddressPopup && (
             <div className="popup py-3">
-              <h3 className="text-lg font-bold">Add New Address</h3>
-              <div className="flex flex-wrap gap-6 ">
-                <select
-                  name="province"
-                  value={newAddress.province}
-                  className='p-2 rounded'
-                  onChange={(e) => setNewAddress({ ...newAddress, province: e.target.value })}
-                >
-                  <option value="">Select Province</option>
-                  {locationData.map((province) => (
-                    <option key={province.name} value={province.name}>
-                      {province.name}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  name="district"
-                  value={newAddress.district}
-                  className='p-2 rounded'
-                  onChange={(e) => setNewAddress({ ...newAddress, district: e.target.value })}
-                >
-                  <option value="">Select District</option>
-                  {newAddress.province && locationData.find(p => p.name === newAddress.province).districts.map((district) => (
-                    <option key={district.name} value={district.name}>
-                      {district.name}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  name="municipality"
-                  value={newAddress.municipality}
-                  className='p-2 rounded'
-                  onChange={(e) => setNewAddress({ ...newAddress, municipality: e.target.value })}
-                >
-                  <option value="">Select Municipality</option>
-                  {newAddress.district && locationData.find(p => p.name === newAddress.province).districts.find(d => d.name === newAddress.district).municipalities.map((municipality) => (
-                    <option key={municipality} value={municipality}>
-                      {municipality}
-                    </option>
-                  ))}
-                </select>
+              <h3 className="text-lg font-bold mb-4">Add New Address</h3>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                    Province <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={provinceOptions.find(option => option.value === newAddress.province)}
+                    options={provinceOptions}
+                    onChange={(option) => setNewAddress({ ...newAddress, province: option.value, district: '', municipality: '' })}
+                    placeholder="Select Province"
+                    isSearchable={true}
+                    className="basic-select"
+                    classNamePrefix="select"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                    District <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={districtOptions.find(option => option.value === newAddress.district)}
+                    options={districtOptions}
+                    onChange={(option) => setNewAddress({ ...newAddress, district: option.value, municipality: '' })}
+                    placeholder="Select District"
+                    isSearchable={true}
+                    isDisabled={!newAddress.province}
+                    className="basic-select"
+                    classNamePrefix="select"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                    Municipality <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={municipalityOptions.find(option => option.value === newAddress.municipality)}
+                    options={municipalityOptions}
+                    onChange={(option) => setNewAddress({ ...newAddress, municipality: option.value })}
+                    placeholder="Select Municipality"
+                    isSearchable={true}
+                    isDisabled={!newAddress.district}
+                    className="basic-select"
+                    classNamePrefix="select"
+                  />
+                </div>
               </div>
-              <button onClick={handleAddAddress} className="bg-green-500 text-white px-4 py-2 rounded mt-2">
-                Save Address
-              </button>
-              <button onClick={() => setShowAddAddressPopup(false)} className="bg-red-500 text-white px-4 py-2 rounded mt-2 ml-2">
-                Cancel
-              </button>
+
+              <div className="flex gap-2 mt-4">
+                <button 
+                  onClick={handleAddAddress} 
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  Save Address
+                </button>
+                <button 
+                  onClick={() => setShowAddAddressPopup(false)} 
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           )}
           

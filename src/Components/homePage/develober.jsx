@@ -2,7 +2,6 @@ import React from "react";
 import BhishanImage from "../../assets/img/my_profile_pic.jpg";
 import SecondDevImage from "../../assets/img/shiv.jpg";
 import NavBar from "../NavBar";
-import backgroundImage from "../../assets/img/design1.png";
 const Developer = () => {
   const developers = [
     {
@@ -42,10 +41,11 @@ const Developer = () => {
   ];
 
   return (
-    <div className="md:h-screen bg-contain bg-top bg-fixed bg-gray-50 " style={{ backgroundImage: `url(${backgroundImage})` }}>
+    <div className="md:h-screen bg-contain bg-top bg-fixed bg-gradient-to-r from-brand-bgColor via-black/70 to-brand-bgColor " >
+      
       <NavBar />
       <div className="flex flex-col items-center p-8">
-        <h1 className="md:text-4xl text-2xl text-black font-bold mb-8">
+        <h1 className="md:text-4xl text-2xl text-white font-bold mb-8">
           Meet Our Developers
           <p className="md:w-48 w-32 h-1 md:mt-1 rounded-full bg-red-600 mx-auto"></p>
         </h1>

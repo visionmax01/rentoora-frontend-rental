@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Api from '../utils/Api.js';
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import getLoggedInUserId from "../utils/getLoggedInUserId.jsx";
 
-function OrderPopup({ order, onClose, onOrderUpdated }) {
+function OrderPopup({ order, onClose, onOrderUpdate }) {
   const [isLoading, setIsLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
+  const [orderDetails, setOrderDetails] = useState(order);
 
   const handleCancelOrder = async () => {
     if (window.confirm("Are you sure you want to cancel this order?")) {
@@ -13,7 +14,8 @@ function OrderPopup({ order, onClose, onOrderUpdated }) {
 
       try {
         const token = localStorage.getItem("token");
-        const userId = getLoggedInUserId();
+        const userId = localStorage.getItem("userId");
+        const userName = localStorage.getItem("userName");
 
         if (!userId) {
           toast.error("Failed to retrieve user ID.");
@@ -28,10 +30,17 @@ function OrderPopup({ order, onClose, onOrderUpdated }) {
           }
         );
 
+        setOrderDetails({
+          ...orderDetails,
+          orderStatus: "Order Canceled",
+          canceledBy: userName,
+          canceledAccountId: userId
+        });
+        
+        onOrderUpdate(order._id);
         toast.success("Order canceled successfully!");
-        onOrderUpdated(order._id); // Notify parent component about the update
-        onClose();
       } catch (error) {
+        console.error("Failed to cancel the order:", error);
         toast.error("Failed to cancel the order");
       } finally {
         setIsLoading(false);
@@ -173,13 +182,13 @@ function OrderPopup({ order, onClose, onOrderUpdated }) {
                         : "No data found"}
                     </td>
                   </tr>
-                  {order.orderStatus === "Order Canceled" && (
+                  {orderDetails.orderStatus === "Order Canceled" && (
                     <tr>
                       <td className="border border-gray-300 px-4 py-1.5">
                         <strong className="text-sm lg:text-md">Canceled By:</strong>
                       </td>
                       <td className="border border-gray-300 font-bold lg:px-4 px-1 text-sm lg:text-md py-1.5 text-red-600">
-                        {order.canceledBy || "No name found"} (ID: {order.canceledAccountId || "No data found"})
+                        {orderDetails.canceledBy || "No name found"} (ID: {orderDetails.canceledAccountId || "No data found"})
                       </td>
                     </tr>
                   )}
@@ -189,16 +198,16 @@ function OrderPopup({ order, onClose, onOrderUpdated }) {
             <div className="mt-6">
               <button
                 className={`text-white px-4 py-1.5 rounded-sm ${
-                  isLoading || order.orderStatus === "Order Canceled"
+                  isLoading || orderDetails.orderStatus === "Order Canceled"
                     ? "bg-red-500 bg-opacity-50 cursor-not-allowed"
                     : "bg-red-500"
                 }`}
                 onClick={handleCancelOrder}
-                disabled={isLoading || order.orderStatus === "Order Canceled"}
+                disabled={isLoading || orderDetails.orderStatus === "Order Canceled"}
               >
                 {isLoading
                   ? "Cancelling..."
-                  : order.orderStatus === "Order Canceled"
+                  : orderDetails.orderStatus === "Order Canceled"
                   ? "Order Cancelled"
                   : "Cancel Order"}
               </button>
@@ -212,13 +221,13 @@ function OrderPopup({ order, onClose, onOrderUpdated }) {
           </button>
           <div
             className={`absolute top-2 left-2 rounded-md p-2 font-extrabold ${
-              order.orderStatus === "Order Canceled" ? "bg-red-100" : "bg-green-200"
+              orderDetails.orderStatus === "Order Canceled" ? "bg-red-100" : "bg-green-200"
             }`}
           >
             <span className={`${
-              order.orderStatus === "Order Canceled" ? "text-red-600" : "text-green-700"
+              orderDetails.orderStatus === "Order Canceled" ? "text-red-600" : "text-green-700"
             }`}>
-              {order.orderStatus || "No status available"}
+              {orderDetails.orderStatus || "No status available"}
             </span>
           </div>
         </div>

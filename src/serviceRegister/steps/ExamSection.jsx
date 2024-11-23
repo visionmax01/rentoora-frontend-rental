@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 
 const ExamSection = ({ formData, handleChange, handlePrev, handleNext }) => {
   const electricianQuestions = [
-    { question: 'What is the standard voltage in most households?', options: ['120V', '220V', '240V', '110V'], correct: '120V' },
+    { question: 'What is the standard voltage in most households?', options: ['120V', '220V', '240V', '110V'], correct: '220V' },
+    { question: 'What tool is used to check electrical current?', options: ['Wrench', 'Screwdriver', 'Multimeter', 'Hammer'], correct: 'Multimeter' },
+    { question: 'What tool is used to check electrical current?', options: ['Wrench', 'Screwdriver', 'Multimeter', 'Hammer'], correct: 'Multimeter' },
     { question: 'What tool is used to check electrical current?', options: ['Wrench', 'Screwdriver', 'Multimeter', 'Hammer'], correct: 'Multimeter' },
   ];
 
@@ -63,9 +65,9 @@ const ExamSection = ({ formData, handleChange, handlePrev, handleNext }) => {
 
   return (
     <>
-      <div>
+      <div className="">
         <h2 className="text-xl font-bold mb-4">Exam - {formData.serviceType}</h2>
-        <div className="mb-4 h-72 overflow-y-auto">
+        <div className="mb-4 h-[500px] sm:h-[400px] overflow-y-auto">
           {questions.map((item, index) => (
             <div key={index} className="mb-4">
               <p className={`font-semibold ${isAnswered[index] && correctAnswers[index] === false ? 'text-red-500' : ''}`}>{item.question}</p>
@@ -94,6 +96,7 @@ const ExamSection = ({ formData, handleChange, handlePrev, handleNext }) => {
         </div>
         {errorMessage && <p className="text-red-600">{errorMessage}</p>}
         <button onClick={handleSubmit} className="btn bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Submit Answers</button>
+        <div className=" absolute right-6 sm:bottom-16 bottom-24 bg-gray-300 p-3 rounded-lg ">
         {submitted && (
           <div className="mt-4">
             <h3 className="font-bold">Exam Result</h3>
@@ -101,6 +104,7 @@ const ExamSection = ({ formData, handleChange, handlePrev, handleNext }) => {
             <p>Score: {score} out of {totalQuestions} ({((score / totalQuestions) * 100).toFixed(2)}%)</p>
           </div>
         )}
+        </div>
       </div>
       
       <div className="absolute bottom-2 right-6 gap-12 flex justify-between mt-4">

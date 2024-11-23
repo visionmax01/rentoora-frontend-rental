@@ -38,6 +38,12 @@ import FeedbackList from "./AdminSide/DiaplayallFeadback.jsx";
 import FeedbackForm from "./utils/FeedbackForm.jsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import WelcomePage from "./BookServiceprovider/WelcomePage.jsx";
+import BookingForm from "./BookServiceprovider/BookingForm.jsx";
+import ProviderBookingList from "./ClientSide/bookedServicesP/ProviderBookingList.jsx";
+import UserBookingList from "./ClientSide/bookedServicesP/UserBookingList.jsx";
+import ProviderFeedbackForm from "./utils/providerFeedbackForm.jsx";
+import DisplayElectronicItems from "./Components/homePage/displayElectronicItems.jsx";
 
 function App() {
   return (
@@ -53,21 +59,27 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/reset-pass" element={<ResetPasswordFlow />} />
           <Route path="/rental-service" element={<RentalServiceDisplay />} />
+          <Route path="/buy-electronic" element={<DisplayElectronicItems />} />
           <Route path="/rental/:postId" element={<SingleViewRentals />} />
           <Route path="/booked-order" element={<BookedOrder />} />
           <Route path="/Search/:searchTerm" element={<SearchResult />} />
           <Route path="/feadBackform" element={<FeedbackForm />} /> 
           <Route path="/search" element={<SearchResult />} /> 
+          <Route path="/provider-feedback/:bookingId" element={<ProviderFeedbackForm />} />
 
           {/* Protected Routes for Clients */}
           <Route
             element={<ProtectedRoute allowedRoles={[0]} redirectPath="/client-dashboard" />}
           >
+            <Route path="/services-booking-system" element={<WelcomePage />} />
+            <Route path="/sb-form" element={<BookingForm />} />
             <Route path="/client-dashboard" element={<ClientDashHome />} />
             <Route path="/client-profile" element={<ClientProfile />} />
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/user-orders" element={<MyOrders />} />
             <Route path="/order-recieved" element={<ReceivedOrders />} />
+            <Route path="/booking-available" element={<ProviderBookingList />} />
+            <Route path="/booked-providers" element={<UserBookingList />} />
           </Route>
 
           {/* Protected Routes for Admins */}
@@ -86,21 +98,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            borderRadius: "0.2rem",
-            padding: "1rem",
-            background: "white",
-            color: "#000",
-            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-            marginTop: "1rem",
-          },
-        }}
-      />
-      <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
     </>
   );
 }

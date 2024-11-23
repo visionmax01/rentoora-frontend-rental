@@ -1,92 +1,104 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
-import RoomIcon from "../../assets/img/Room.png";
-import HomeIcon from "../../assets/img/solar-cell.png";
-import Apartment from "../../assets/img/apartment.png";
-import PlumberIcon from "../../assets/img/plumber.png";
-import Electrician from "../../assets/img/electrician.png";
-import Socialphone from "../../assets/img/social-marketing.png";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+
+import RoomIcon from "../../assets/img/rent-img.avif";
+import PlumberIcon from "../../assets/img/plumber.jpg";
+import Electrician from "../../assets/img/electrician1.jpg";
+import phoneIMG from "../../assets/img/buy_sell-phone.jpg";
 
 const Services = () => {
-    const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
-    const handleNavigate = (route) => {
-        navigate(route); // Programmatically navigate to the route
-    };
+  const handleNavigate = (route) => {
+    navigate(route);
+  };
 
-    return (
-        <div className="text-black flex flex-col items-center uppercase   md:rounded-none md:text-lg  font-bold text-[12px] absolute z-10 px-4 py-8 top-28 h-auto md:min-h-fit min-h-96 w-full bg-gradient-to-r from-gray-700 to-blue-950 bluer-500">
-            <div>
-                <h1 className='md:text-3xl text-xl text-white opacity-75 mb-4 uppercase font-extrabold'>
-                    Services We Provide
-                </h1>
-            </div>
-            <div className="flex gap-4 justify-around items-center flex-wrap md:justify-center md:gap-16">
+  return (
+    <div className="text-black flex flex-col items-center uppercase md:rounded-none md:text-lg font-bold text-[12px] p-6 my-4 w-full bg-gradient-to-r from-gray-700 to-blue-950 bluer-500">
+      <div>
+        <h1 className="md:text-3xl text-xl text-white opacity-75 mb-4 uppercase font-extrabold">
+          Services We Provide
+        </h1>
+      </div>
+      <div className="flex gap-4 justify-around items-center flex-wrap md:justify-center md:gap-16">
+        {/* Rent Room */}
+        <motion.div
+          className="relative flex justify-center hover:border-red-600 border-2 flex-col items-center w-full lg:w-[400px] bg-white rounded-lg shadow-lg hover:shadow-2xl"
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.5 }} 
+          viewport={{ once: true }} 
+        >
+          <img
+            src={RoomIcon}
+            className="h-52 lg:h-64 w-full rounded-lg z-10 relative"
+            alt="Rent Room"
+          />
+          <p className="text-xl text-center pt-2 font-semibold text-gray-800">
+            Rent Room / Apartment / Houses
+          </p>
+          <button
+            onClick={() => handleNavigate("/rental-service")}
+            className="px-4 py-2 my-4 w-3/4 text-white text-xl bg-blue-500 hover:bg-blue-600 rounded transform-width duration-300 hover:ease-in-out"
+          >
+            Explore
+          </button>
+        </motion.div>
 
-                {/* Rent Room */}
-                <div
-                    onClick={() => handleNavigate('/rental-service')} // Navigate to /rent-room
-                    className="relative hover:-translate-y-2 duration-300 ease-in-out flex flex-col justify-center items-center w-28 h-28 md:w-32 md:h-32 bg-gray-100 bg-opacity-75 cursor-pointer rounded-lg shadow-gray-300 shadow-md overflow-hidden group"
-                >
-                    <div className="absolute inset-0 bg-blue-300 rounded-tl-full transform scale-0 group-hover:animate-fill-bottom-right hover:rounded-tl-fully"></div>
-                    <img src={RoomIcon} className="w-12 h-12 md:w-16 md:h-16 z-10 relative" alt="Rent Room" />
-                    <span className="relative text-[14px] mt-2 z-10 break-words">Rent Room</span>
-                </div>
+        {/* Electrician / Plumber */}
+        <motion.div
+          className="relative flex justify-center hover:border-red-600 border-2 flex-col items-center w-full lg:w-[400px] bg-white rounded-lg shadow-lg hover:shadow-2xl"
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+        >
+          <div className="flex">
+            <img
+              src={Electrician}
+              className="rounded-t-lg h-52 lg:h-64 w-1/2 object-fit"
+              alt="Electrician"
+            />
+            <img
+              src={PlumberIcon}
+              className="rounded-t-lg h-52 lg:h-64 w-1/2 object-cover"
+              alt="Plumber"
+            />
+          </div>
+          <p className="text-center text-xl pt-2">Electrician / Plumber</p>
+          <button
+            onClick={() => handleNavigate("/services-booking-system")}
+            className="px-4 py-2 my-4 w-3/4 text-white text-xl bg-blue-500 hover:bg-blue-600 rounded transform-width duration-300 hover:ease-in-out"
+          >
+            Explore
+          </button>
+        </motion.div>
 
-                {/* Apartment */}
-                <div
-                    onClick={() => handleNavigate('/rental-service')} // Navigate to /apartment
-                    className="relative hover:-translate-y-2 duration-300 ease-in-out flex flex-col justify-center items-center w-28 h-28 md:w-32 md:h-32 bg-gray-100 bg-opacity-75 cursor-pointer rounded-lg shadow-gray-300 shadow-md overflow-hidden group"
-                >
-                    <div className="absolute inset-0 bg-blue-300 rounded-tl-full transform scale-0 group-hover:animate-fill-bottom-right hover:rounded-tl-fully"></div>
-                    <img src={Apartment} className="w-12 h-12 md:w-16 md:h-16 z-10 relative" alt="Apartment" />
-                    <span className="relative z-10 text-[14px] mt-2">Apartment</span>
-                </div>
-
-                {/* Rent Home */}
-                <div
-                    onClick={() => handleNavigate('/rental-service')} // Navigate to /rent-home
-                    className="relative hover:-translate-y-2 duration-300 ease-in-out flex flex-col justify-center items-center w-28 h-28 md:w-32 md:h-32 bg-gray-100 bg-opacity-75 cursor-pointer rounded-lg shadow-gray-300 shadow-md overflow-hidden group"
-                >
-                    <div className="absolute inset-0 bg-blue-300 rounded-tl-full transform scale-0 group-hover:animate-fill-bottom-right hover:rounded-tl-fully"></div>
-                    <img src={HomeIcon} className="w-12 h-12 md:w-16 md:h-16 z-10 relative" alt="Rent Home" />
-                    <span className="relative z-10 text-[14px] mt-2">Rent Home</span>
-                </div>
-
-                {/* Plumber */}
-                <div
-                    onClick={() => handleNavigate('/plumber')} // Navigate to /plumber
-                    className="relative hover:-translate-y-2 duration-300 ease-in-out flex flex-col justify-center items-center w-28 h-28 md:w-32 md:h-32 bg-gray-100 bg-opacity-75 cursor-pointer rounded-lg shadow-gray-300 shadow-md overflow-hidden group"
-                >
-                    <div className="absolute inset-0 bg-blue-300 rounded-tl-full transform scale-0 group-hover:animate-fill-bottom-right hover:rounded-tl-fully"></div>
-                    <img src={PlumberIcon} className="w-12 h-12 md:w-16 md:h-16 z-10 relative" alt="Plumber" />
-                    <span className="relative z-10 text-[14px] mt-2">Plumber</span>
-                </div>
-
-                {/* Electrician */}
-                <div
-                    onClick={() => handleNavigate('/electrician')} // Navigate to /electrician
-                    className="relative hover:-translate-y-2 duration-300 ease-in-out flex flex-col justify-center items-center w-28 h-28 md:w-32 md:h-32 bg-gray-100 bg-opacity-75 cursor-pointer rounded-lg shadow-gray-300 shadow-md overflow-hidden group"
-                >
-                    <div className="absolute inset-0 bg-blue-300 rounded-tl-full transform scale-0 group-hover:animate-fill-bottom-right hover:rounded-tl-fully"></div>
-                    <img src={Electrician} className="w-12 h-12 md:w-16 md:h-16 z-10 relative" alt="Electrician" />
-                    <span className="relative z-10 text-[14px] mt-2">Electrician</span>
-                </div>
-
-                {/* Sell Your Phone */}
-                <div
-                    onClick={() => handleNavigate('/sell-phone')} // Navigate to /sell-phone
-                    className="relative hover:-translate-y-2 duration-300 ease-in-out flex flex-col justify-center items-center w-28 h-28 md:w-32 md:h-32 bg-gray-100 bg-opacity-75 cursor-pointer rounded-lg shadow-gray-300 shadow-md overflow-hidden group"
-                >
-                    <div className="absolute inset-0 bg-blue-300 rounded-tl-full transform scale-0 group-hover:animate-fill-bottom-right hover:rounded-tl-fully"></div>
-                    <img src={Socialphone} className="w-12 h-12 md:w-16 md:h-16 z-10 relative" alt="Sell Your Phone" />
-                    <span className="relative z-10 text-[12px] mt-2">Sell your Phone</span>
-                </div>
-
-            </div>
-        </div>
-    );
+        {/* Sell Your Phone */}
+        <motion.div
+          className="relative flex justify-center hover:border-red-600 border-2 flex-col items-center w-full lg:w-[400px] bg-white rounded-lg shadow-lg hover:shadow-2xl"
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+        >
+          <img
+            src={phoneIMG}
+            className="rounded-t-lg w-full h-52 lg:h-64 object-cover"
+            alt="Sell Your Phone"
+          />
+          <p className="text-xl text-center pt-2">Sell your Phone</p>
+          <button
+            onClick={() => handleNavigate("/buy-electronic")}
+            className="px-4 py-2 my-4 w-3/4 text-white text-xl bg-blue-500 hover:bg-blue-600 transform-width duration-300 hover:ease-in-out rounded"
+          >
+            Explore
+          </button>
+        </motion.div>
+      </div>
+    </div>
+  );
 };
 
 export default Services;
-

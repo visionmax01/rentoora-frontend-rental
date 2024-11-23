@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import manpng from "../assets/img/man.png";
-import { Link } from "react-router-dom";
 import Api from '../utils/Api.js'
+import { FaHome, FaUser, FaLock, FaSignOutAlt } from 'react-icons/fa';
 
 const AdminNav = () => {
   const [user, setUser] = useState(null);
@@ -20,18 +20,11 @@ const AdminNav = () => {
         });
         setUser(response.data);
         if (response.data.profilePhotoPath) {
-          fetchProfilePhoto(response.data.profilePhotoPath);
+          setProfilePhoto(response.data.profilePhotoPath);
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
-    };
-
-    const fetchProfilePhoto = (profilePhotoPath) => {
-      if (!profilePhotoPath) return;
-    
-      // Directly use the Cloudinary URL to set the profile photo
-      setProfilePhoto(profilePhotoPath);
     };
     fetchUserData();
   }, [navigate]);
@@ -59,68 +52,45 @@ const AdminNav = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
-
   return (
-    <div className=" space-y-6  ">
-      <div className="flex justify-between items-center lg:mb-6 bg-brand-lightGrow md:rounded-lg p-4 ">
-        <h1 className="md:text-2xl  text-white font-bold uppercase">Admin Dashboard</h1>
-
-        <div className="flex gap-4">
-        <div
-          onClick={toggleDropdown}
-          className=" items-center cursor-pointer "
-        >
-          {profilePhoto ? (
-            <img
-              className="md:w-10 md:h-10 w-8 h-8  border-4 border-brand-bgColor rounded-full object-cover"
-              src={profilePhoto}
-              alt="Profile"
-            />
-          ) : (
-            <img
-              className="md:w-10 md:h-10 w-8 h-8 border-4 border-brand-bgColor rounded-full object-cover"
-              src={manpng}
-              alt="Default"
-            />
-          )}
-        </div>
-        <button
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-700 text-white  font-bold md:h-10 py-1 md:px-4 px-2 rounded"
-          >
-            <i class="fa-solid fa-right-from-bracket"></i>
-          </button>
+    <nav className="bg-gradient-to-r to-gray-800 from-brand-bgColor shadow-sm shadow-white/25 lg:rounded-lg mb-6">
+      <div className="w-full mx-auto">
+        <div className="relative flex  px-4 items-center justify-between h-16">
+          <div className="">
+            <Link to="/admin-dashboard" className="flex-shrink-0 flex items-center">
+              <FaHome className="h-8 w-8 text-white hover:text-gray-200 transition-colors duration-300" />
+              <span className="ml-3 text-white font-bold text-xl hidden md:block">Admin Home</span>
+            </Link>
+          </div>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-4 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            <div className="ml-3 relative">
+              <div>
+                <button onClick={toggleDropdown} className="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                  <span className="sr-only">Open user menu</span>
+                  <img className="h-8 w-8 rounded-full object-cover border-2 border-white" src={profilePhoto || manpng} alt="User profile" />
+                </button>
+              </div>
+              {dropdownOpen && (
+                <div className="origin-top-right z-50 absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabIndex="-1">
+                  <Link to="/admin-profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                    <FaUser className="mr-3" />
+                    Profile
+                  </Link>
+                  <Link to="/admin-change-password" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                    <FaLock className="mr-3" />
+                    Change Password
+                  </Link>
+                </div>
+              )}
+            </div>
+            <button onClick={handleLogout} className="ml-4 flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+              <FaSignOutAlt className="mr-2" />
+              Logout
+            </button>
+          </div>
         </div>
       </div>
-      {dropdownOpen && (
-        <div className="absolute top-8 right-4 md:top-[70px] md:right-12  mt-2 w-48 bg-white border border-gray-300 rounded shadow-lg z-10">
-          <Link
-            to="/admin-dashboard"
-            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-          >
-            Go to Dashboard
-          </Link>
-          <Link
-            to="/admin-profile"
-            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-          >
-            Profile
-          </Link>
-          <Link
-            to="/admin-change-password"
-            className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-          >
-            Change Password
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-          >
-            Logout
-          </button>
-        </div>
-      )}
-    </div>
+    </nav>
   );
 };
 

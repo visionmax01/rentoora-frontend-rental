@@ -118,42 +118,82 @@ const MyOrders = () => {
     return displayedOrders.length < filteredOrders.length; 
   };
 
+  // Update this function to handle both status and cancellation details
+  const handleOrderUpdate = (orderId) => {
+    const userId = localStorage.getItem("userId");
+    const userName = localStorage.getItem("userName");
+
+    // Update orders state
+    const updatedOrders = orders.map(order => 
+      order._id === orderId 
+        ? {
+            ...order,
+            orderStatus: "Order Canceled",
+            canceledBy: userName,
+            canceledAccountId: userId
+          }
+        : order
+    );
+    setOrders(updatedOrders);
+
+    // Update displayed orders
+    const updatedDisplayedOrders = displayedOrders.map(order => 
+      order._id === orderId 
+        ? {
+            ...order,
+            orderStatus: "Order Canceled",
+            canceledBy: userName,
+            canceledAccountId: userId
+          }
+        : order
+    );
+    setDisplayedOrders(updatedDisplayedOrders);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 lg:p-6 ">
+    <div className="min-h-screen bg-gradient-to-r from-blue-100 to-purple-100 lg:p-6 ">
       <h1 className="text-3xl font-bold text-gray-800 mb-6 ml-2">My Orders</h1>
 
       {/* Filter Buttons */}
-      <div className="flex lg:gap-4 gap-2 mb-6 px-2">
-        <button
-          className={`lg:px-4 lg:py-2 text-md px-2 rounded-md ${
-            filterStatus === "All"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-800"
-          }`}
-          onClick={() => filterOrders("All")}
-        >
-          All Orders
-        </button>
-        <button
-          className={`lg:px-4 lg:py-2 text-md px-2 rounded-md ${
-            filterStatus === "Booked"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-800"
-          }`}
-          onClick={() => filterOrders("Booked")}
-        >
-          Booked Orders
-        </button>
-        <button
-          className={`lg:px-4 lg:py-2 text-md px-2 rounded-md ${
-            filterStatus === "Canceled"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-800"
-          }`}
-          onClick={() => filterOrders("Canceled")}
-        >
-          Canceled Orders
-        </button>
+      <div className="flex flex-col lg:flex-row lg:gap-4 gap-2 mb-6 px-2 ">
+        <div className="mb-2 lg:mb-0">
+          <button
+            className={`w-full lg:w-auto lg:px-4 lg:py-2 text-md px-2 py-1 rounded-md transition-colors duration-200 ease-in-out ${
+              filterStatus === "All"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+            }`}
+            onClick={() => filterOrders("All")}
+            onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
+            type="button" // Explicitly set button type
+          >
+            All Orders
+          </button>
+        </div>
+        <div className="mb-2 lg:mb-0">
+          <button
+            className={`w-full lg:w-auto lg:px-4 lg:py-2 text-md px-2 py-1 rounded-md transition-colors duration-200 ease-in-out ${
+              filterStatus === "Booked"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-400 text-gray-800 hover:bg-gray-300"
+            }`}
+            onClick={() => filterOrders("Booked")}
+          >
+            Booked Orders
+          </button>
+        </div>
+        <div>
+          <button
+            className={`w-full lg:w-auto lg:px-4 lg:py-2 text-md px-2 py-1 rounded-md transition-colors duration-200 ease-in-out ${
+              filterStatus === "Canceled"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-400 text-gray-800 hover:bg-gray-300"
+            }`}
+            onClick={() => filterOrders("Canceled")}
+          >
+            Canceled Orders
+          </button>
+        </div>
       </div>
 
       {/* Display orders or no data message */}
@@ -320,6 +360,7 @@ const MyOrders = () => {
         <OrderPopup
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
+          onOrderUpdate={handleOrderUpdate} // Updated prop name
         />
       )}
     </div>

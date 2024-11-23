@@ -89,7 +89,7 @@ const MyBookedOrders = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 lg:p-6 p-2">
+    <div className="min-h-screen bg-gradient-to-r from-blue-100 to-purple-100 lg:p-6 p-2">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Order Recieved</h1>
 
       {/* Filter Buttons */}
@@ -98,7 +98,7 @@ const MyBookedOrders = () => {
           className={`px-4 py-2 mr-2 rounded-md ${
             filter === "Booked"
               ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-black"
+              : "bg-gray-400 text-black"
           }`}
           onClick={() => handleFilterChange("Booked")}
         >
@@ -108,7 +108,7 @@ const MyBookedOrders = () => {
           className={`px-4 py-2 rounded-md ${
             filter === "Canceled"
               ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-black"
+              : "bg-gray-400 text-black"
           }`}
           onClick={() => handleFilterChange("Canceled")}
         >

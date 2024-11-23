@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
+import AnilImg from '../../assets/img/anil-sah.jpg'
 import MyPic from '../../assets/img/my_profile_pic.jpg'
 import MyPic2 from '../../assets/img/shiv.png'
 import Ravi from '../../assets/img/Ravi_shankar_img.jpg'
@@ -36,6 +36,7 @@ const Testimonials = () => {
   const cards = [
     { id: 1, image: MyPic, name: 'Bhishan prasad sah', content: 'A convenient solution for renting homes, booking plumbers or electricians, and selling old phones. Quick, reliable, and easy to use' },
     { id: 2, image: MyPic2, name: 'Shiv raj raut', content: 'I rented an apartment, booked an electrician, and sold my phone all in one place. Highly recommend this service' },
+    { id: 3, image: AnilImg, name: 'Anil Kumar Sah', content: 'A better service renting houses and booking services like Plumber / electrician. Also sold my phone quickly. Loved it' },
     { id: 3, image: Ravi, name: 'Ravi shankar Prasad Singh', content: 'A hassle-free experience renting houses and booking services like electricians. Also sold my phone quickly. Loved it' },
     { id: 4, image: Sihalpic, name: 'Sahil kumar sah', content: 'This site is perfect for renting, booking household repairs, and selling phones. Fast, efficient, and user-friendly.' },
     { id: 5, image: MyPic3, name: 'Anrud kumar sah', content: 'Found a perfect room, hired a plumber, and sold my phone easily. Great service with everything in one place' },

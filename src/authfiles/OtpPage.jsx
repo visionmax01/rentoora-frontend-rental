@@ -1,5 +1,6 @@
-import { useState, useEffect, createRef } from 'react';
-import toast from 'react-hot-toast';
+import React, { useState, useEffect, createRef } from 'react';
+import { toast } from 'react-toastify';
+import { FaSpinner } from 'react-icons/fa';
 import Api from '../utils/Api.js';
 import Mainlogo from '../assets/img/Main_logo.png';
 
@@ -7,39 +8,26 @@ const OtpPage = ({ email, onOtpVerified }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingr, setIsLoadingr] = useState(false);
-  const [countdown, setCountdown] = useState(60); // 2 minutes countdown
-  const inputRefs = Array(6).fill().map(() => createRef()); // Array of refs for input fields
+  const [countdown, setCountdown] = useState(60);
+  const inputRefs = Array(6).fill().map(() => createRef());
 
-  // Focus the first input on mount
   useEffect(() => {
-    inputRefs[0].current.focus(); // Focus the first input field
+    inputRefs[0].current.focus();
   }, []);
 
-  // Countdown timer
   useEffect(() => {
     const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
+      setCountdown((prev) => (prev <= 1 ? 0 : prev - 1));
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
   const handleInputChange = (e, index) => {
     const value = e.target.value;
-
-    // Allow only digits
     if (/^\d?$/.test(value)) {
       const newOtp = [...otp];
-      newOtp[index] = value; // Set the current input's value
+      newOtp[index] = value;
       setOtp(newOtp);
-
-      // Move focus to next input only if current is filled
       if (value && index < 5) {
         inputRefs[index + 1].current.focus();
       }
@@ -47,43 +35,35 @@ const OtpPage = ({ email, onOtpVerified }) => {
   };
 
   const handleKeyDown = (e, index) => {
-    // Allow backspace to move to previous input
     if (e.key === 'Backspace') {
       if (otp[index] === '' && index > 0) {
         inputRefs[index - 1].current.focus();
       }
-    } else if (/\d/.test(e.key) && index < 5) {
-      // Move focus to the next input if a digit is entered
-      if (e.target.value.length === 1) {
-        inputRefs[index + 1].current.focus();
-      }
+    } else if (/\d/.test(e.key) && index < 5 && e.target.value.length === 1) {
+      inputRefs[index + 1].current.focus();
     }
   };
 
-  const handlePaste = (e, index) => {
+  const handlePaste = (e) => {
+    e.preventDefault();
     const pastedData = e.clipboardData.getData('text');
-    const digits = pastedData.split('').filter(d => /^\d$/.test(d)); // Filter out non-digit characters
-
-    // Update OTP state and focus the inputs accordingly
+    const digits = pastedData.split('').filter(d => /^\d$/.test(d)).slice(0, 6);
     const newOtp = [...otp];
     digits.forEach((digit, i) => {
       if (i < 6) {
         newOtp[i] = digit;
-        // Focus on the next input field if within bounds
-        if (i < 5) {
-          inputRefs[i + 1].current.focus();
-        }
       }
     });
-
     setOtp(newOtp);
-    e.preventDefault(); // Prevent default paste behavior
+    if (digits.length > 0 && digits.length < 6) {
+      inputRefs[digits.length].current.focus();
+    }
   };
 
   const verifyOTPHandler = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    const otpString = otp.join(''); // Join the OTP array into a string
+    const otpString = otp.join('');
     try {
       const response = await Api.post('auth/verify-otp', { email, otp: otpString });
       toast.success(response.data.message);
@@ -100,59 +80,90 @@ const OtpPage = ({ email, onOtpVerified }) => {
     setIsLoadingr(true);
     try {
       await Api.post('auth/send-otp', { email });
-      setCountdown(60); // Reset the countdown
+      setCountdown(60);
       toast.success('OTP resent to your email');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to resend OTP');
-    }finally {
+    } finally {
       setIsLoadingr(false);
     }
   };
 
   return (
-    <>
-    <center><img src={Mainlogo} alt="" className="h-12" /></center>
-    <form onSubmit={verifyOTPHandler} className="p-6 max-w-lg mx-auto bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold text-center mb-6">Verify OTP</h2>
-      <p className="text-center mb-4">OTP has been sent to <strong>{email}</strong></p>
-      <div className="mb-4 flex justify-between">
-        {otp.map((digit, index) => (
-          <input
-            key={index}
-            id={`otp-${index}`}
-            type="text"
-            maxLength="1"
-            className="shadow appearance-none border rounded w-12 py-2 px-3 text-gray-700 text-center"
-            value={digit}
-            onChange={(e) => handleInputChange(e, index)}
-            onKeyDown={(e) => handleKeyDown(e, index)}
-            onPaste={(e) => handlePaste(e, index)} // Handle paste event
-            ref={inputRefs[index]}
-            onFocus={() => inputRefs[index].current.select()} // Select the input text on focus
-          />
-        ))}
+    <div className="relative h-screen flex flex-col justify-center bg-gray-100">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md mx-2 relative">
+        <div className="bg-white rounded-xl p-8 shadow-md">
+          <img src={Mainlogo} className="h-12 mx-auto mb-2" alt="Rentoora logo" />
+          <h2 className="text-center text-3xl font-extrabold text-gray-900">
+            Verify OTP
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Enter the OTP sent to {email}
+          </p>
+        </div>
       </div>
-      <button
-        type="submit"
-        className="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-        disabled={isLoading}
-      >
-        {isLoading ? 'Verifying OTP...' : 'Verify OTP'}
-      </button>
-     
-    </form>
-    <div className="mt-4 text-center">
-        {countdown > 0 ? (
-          <p>Resend OTP in {Math.floor(countdown / 60)}:{('0' + (countdown % 60)).slice(-2)}</p>
-        ) : (
-          <button onClick={resendOtpHandler} 
-           disabled={isLoadingr}
-           className="text-blue-500 hover:underline">
-            {isLoadingr ? 'Sending OTP...' : 'Resend OTP'}
-          </button>
-        )}
+
+      <div className="-mt-6 z-30 pb-12 sm:mx-auto sm:w-full sm:max-w-md p-4">
+        <div className="bg-white py-8 px-4 shadow-md rounded-lg sm:px-10">
+          <form onSubmit={verifyOTPHandler} className="space-y-6">
+            <div className="flex justify-between">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  maxLength="1"
+                  className="w-12 h-12 text-center text-xl border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  value={digit}
+                  onChange={(e) => handleInputChange(e, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  onPaste={handlePaste}
+                  ref={inputRefs[index]}
+                  onFocus={() => inputRefs[index].current.select()}
+                />
+              ))}
+            </div>
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <FaSpinner className="animate-spin h-5 w-5 mr-3" />
+                    <span>Verifying...</span>
+                  </>
+                ) : (
+                  'Verify OTP'
+                )}
+              </button>
+            </div>
+          </form>
+          <div className="mt-4 text-center">
+            {countdown > 0 ? (
+              <p className="text-sm text-gray-600">
+                Resend OTP in {Math.floor(countdown / 60)}:{('0' + (countdown % 60)).slice(-2)}
+              </p>
+            ) : (
+              <button
+                onClick={resendOtpHandler}
+                disabled={isLoadingr}
+                className="text-sm text-indigo-600 hover:text-indigo-500"
+              >
+                {isLoadingr ? (
+                  <>
+                    <FaSpinner className="animate-spin h-4 w-4 mr-2 inline" />
+                    <span>Sending OTP...</span>
+                  </>
+                ) : (
+                  'Resend OTP'
+                )}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://rentoora-backend-rental.vercel.app/Api',
-    // baseURL: 'http://localhost:7000/Api',
+    baseURL: 'http://localhost:7000/Api',
+    // baseURL: 'https://rentoora-backend-rental.vercel.app/Api',
 });
 
 // Add a request interceptor to include the token in headers

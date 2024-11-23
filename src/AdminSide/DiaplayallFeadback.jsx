@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import AdminNav from './adminNav';
-import { motion, AnimatePresence } from 'framer-motion';
-import Api from '../utils/Api.js'
+import React, { useState, useEffect } from "react";
+import AdminNav from "./adminNav";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaStar, FaEye } from "react-icons/fa";
+import Api from "../utils/Api.js";
 
 const FeedbackList = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -11,9 +12,11 @@ const FeedbackList = () => {
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
-      const response = await Api.get('feadback/getfeadback');
+      const response = await Api.get("feadback/getfeadback");
       // Sort feedbacks by createdAt in descending order to show latest first
-      const sortedFeedbacks = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const sortedFeedbacks = response.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
       setFeedbacks(sortedFeedbacks);
     };
 
@@ -26,9 +29,28 @@ const FeedbackList = () => {
 
   // Calculate total pages
   const totalPages = Math.ceil(feedbacks.length / itemsPerPage);
-  
+
   // Get current feedbacks for the current page
-  const currentFeedbacks = feedbacks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const currentFeedbacks = feedbacks.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Function to render stars for rating
+  const renderRatingStars = (rating) => {
+    let stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <FaStar
+          key={i}
+          className={`text-lg ${
+            i <= rating ? "text-yellow-400" : "text-gray-300"
+          }`}
+        />
+      );
+    }
+    return stars;
+  };
 
   return (
     <div className="lg:p-4">
@@ -42,25 +64,47 @@ const FeedbackList = () => {
                 <th className="py-2 px-4 border-b">#</th>
                 <th className="py-2 px-4 border-b">Name</th>
                 <th className="py-2 px-4 border-b">Email</th>
-                <th className="py-2 px-4 border-b hidden lg:table-cell">Submitted At</th>
+                <th className="py-2 px-4 border-b hidden lg:table-cell">
+                  Rating
+                </th>
+                <th className="py-2 px-4 border-b hidden lg:table-cell">
+                  Submitted At
+                </th>
                 <th className="py-2 px-4 border-b">Actions</th>
               </tr>
             </thead>
             <tbody>
               {currentFeedbacks.map((feedback, index) => (
                 <tr key={feedback._id} className="text-left">
-                  <td className="py-2 px-4 border-b">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                  <td className="py-2 px-4 border-b">
+                    {(currentPage - 1) * itemsPerPage + index + 1}
+                  </td>
                   <td className="py-2 px-4 border-b">{feedback.name}</td>
                   <td className="py-2 px-4 border-b">{feedback.email}</td>
                   <td className="py-2 px-4 border-b hidden lg:table-cell">
-                    {new Date(feedback.createdAt).toLocaleString()}
+                    <div className="flex space-x-1">
+                      {renderRatingStars(feedback.rating)}{" "}
+                    </div>
                   </td>
-                  <td className="py-2 px-4 border-b">
+                  <td className="py-2 px-4 border-b hidden lg:table-cell">
+                    <p>
+                      {new Date(feedback.createdAt).toLocaleString("en-GB", {
+                        day: "2-digit", 
+                        month: "short", 
+                        year: "numeric", 
+                        hour: "2-digit", 
+                        minute: "2-digit", 
+                        second: "2-digit", 
+                        hour12: true, 
+                      })}
+                    </p>
+                  </td>
+                  <td className="px-4 border-b">
                     <button
-                      className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      className="px-3 py-2 text-blue-500  rounded hover:text-blue-600"
                       onClick={() => setSelectedFeedback(feedback)}
                     >
-                      View
+                      <FaEye />
                     </button>
                   </td>
                 </tr>
@@ -72,7 +116,7 @@ const FeedbackList = () => {
         {/* Pagination Controls */}
         <div className="flex justify-between items-center mt-4">
           <button
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
             className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
           >
@@ -82,7 +126,9 @@ const FeedbackList = () => {
             Page {currentPage} of {totalPages}
           </span>
           <button
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
             className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
           >
@@ -108,10 +154,41 @@ const FeedbackList = () => {
             >
               <h2 className="text-lg font-semibold mb-4">Feedback Details</h2>
               <div className="flex flex-col gap-2">
-                <p><strong>Name:</strong> {selectedFeedback.name}</p>
-                <p><strong>Email:</strong> {selectedFeedback.email}</p>
-                <p><strong>Message:</strong><br /> <span className="bg-gray-300 px-4 py-1 rounded-sm">{selectedFeedback.message}</span></p>
-                <p><strong>Submitted at:</strong> {new Date(selectedFeedback.createdAt).toLocaleString()}</p>
+                <p>
+                  <strong>Name:</strong> {selectedFeedback.name}
+                </p>
+                <p>
+                  <strong>Email:</strong> {selectedFeedback.email}
+                </p>
+                <p>
+                  <strong>Message:</strong>
+                  <br />{" "}
+                  <p className="bg-gray-300 px-4 py-2 h-28 text-justify  overflow-y-auto rounded-sm">
+                    {selectedFeedback.message}
+                  </p>
+                </p>
+                <p>
+                  <strong>Rating:</strong>
+                </p>
+                <div className="flex space-x-1">
+                  {renderRatingStars(selectedFeedback.rating)}{" "}
+                </div>
+                <p>
+                  <strong>Submitted at:</strong>{" "}
+                  {new Date(selectedFeedback.createdAt).toLocaleString(
+                    "en-GB",
+                    {
+                      weekday: "short", 
+                      day: "2-digit", 
+                      month: "short", 
+                      year: "numeric", 
+                      hour: "2-digit",
+                      minute: "2-digit", 
+                      second: "2-digit", 
+                      hour12: true,
+                    }
+                  )}
+                </p>
               </div>
               <div className="flex justify-end mt-4">
                 <button

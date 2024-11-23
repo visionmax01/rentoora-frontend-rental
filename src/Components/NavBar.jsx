@@ -4,309 +4,231 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import Mainlogo from "../assets/img/Main_logo.png";
 import defaultProfilePic from "../assets/img/man.png";
-import Api from '../utils/Api.js'
-import FeedbackForm from "../utils/FeedbackForm.jsx"; 
+import Api from "../utils/Api.js";
+import FeedbackForm from "../utils/FeedbackForm.jsx";
+import { User, LayoutDashboard, LogOut } from "lucide-react";
 
 const NavBar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(defaultProfilePic);
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false); // Feedback popup state
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const toggleDrawer = () => {
-    setIsDrawerOpen(!isDrawerOpen);
-  };
+  const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
+  const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
+  const toggleFeedback = () => setIsFeedbackOpen(!isFeedbackOpen);
 
-  const HomePageRedirection = () => {
-    navigate("/");
-  };
-
-  const handleDeveloperURL = () => {
-    navigate("/developer");
-  };
-
-  const handleAboutURL = () => {
-    navigate("/about");
-  };
-
-  const handleServicesURL = () => {
-    navigate("/service");
-  };
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const toggleProfileMenu = () => {
-    setIsProfileMenuOpen(!isProfileMenuOpen);
+  const handleNavigation = (path) => {
+    navigate(path);
+    setIsDrawerOpen(false);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     setIsProfileMenuOpen(false);
+    setUserEmail("");
     navigate("/client-login");
   };
 
   const isActive = (path) => location.pathname === path;
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      Api.get("auth/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          const user = response.data;
+    const checkLoginStatus = async () => {
+      setIsLoading(true);
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const response = await Api.get("auth/profile", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
           setIsLoggedIn(true);
           fetchProfilePhoto(response.data.profilePhotoPath);
-        })
-        .catch(() => {
+          setUserEmail(response.data.email);
+        } catch (error) {
+          console.error("Error fetching profile:", error);
           setIsLoggedIn(false);
-        });
-    } else {
-      setIsLoggedIn(false);
-    }
+          localStorage.removeItem("token");
+        }
+      } else {
+        setIsLoggedIn(false);
+      }
+      setIsLoading(false);
+    };
+
+    checkLoginStatus();
+    window.addEventListener('storage', checkLoginStatus);
+
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+    };
   }, []);
 
   const fetchProfilePhoto = (profilePhotoPath) => {
-    if (!profilePhotoPath) return;
-    setProfilePhoto(profilePhotoPath);
+    if (profilePhotoPath) setProfilePhoto(profilePhotoPath);
   };
 
-  const toggleFeedback = () => {
-    setIsFeedbackOpen(!isFeedbackOpen); // Toggle feedback form visibility
-  };
+  const NavItem = ({ onClick, isActive, children }) => (
+    <li
+      onClick={onClick}
+      className={`list-none cursor-pointer px-4 py-2 relative group ${
+        isActive
+          ? "bg-gradient-to-r from-yellow-600 to-yellow-100 text-transparent bg-clip-text"
+          : "text-gray-200 hover:bg-gradient-to-r hover:from-yellow-600 hover:to-yellow-100 hover:text-transparent hover:bg-clip-text"
+      }`}
+    >
+      {children}
+      <span className={`absolute bottom-1 hidden sm:block left-1/2 w-12 h-0.5 bg-gradient-to-r from-yellow-600 to-yellow-100 transform -translate-x-1/2 transition-transform duration-300 ${
+        isActive ? "scale-x-100" : "scale-x-0"
+      } group-hover:scale-x-100`}></span>
+    </li>
+  );
 
   return (
     <div className="sticky top-0 z-50">
-      <nav className="w-full bg-gradient-to-r lg:py-2 py-3 to-brand-navbg from-blue-900 border-b-4 border-blue3-600 flex items-center relative">
-        <div className="flex justify-end items-center w-full px-4 md:px-12">
-          <img
-            onClick={HomePageRedirection}
-            className="absolute left-6 cursor-pointer font-extrabold text-yellow-400 flex h-12"
-            src={Mainlogo}
-            alt="Main Logo"
-          />
+      <nav className="bg-black border-b border-brand-Yellow/25 shadow-md">
+        <div className="w-full  px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex-shrink-0 flex items-center">
+              <img
+                onClick={() => handleNavigation("/")}
+                className="h-8 w-auto sm:h-10 cursor-pointer"
+                src={Mainlogo}
+                alt="Rentoora Logo"
+              />
+            </div>
+          <div className="hidden md:flex text-white md:items-center md:space-x-4">
 
-          {/* Desktop View */}
-          <ul className="hidden md:flex gap-7 items-center text-white font-semibold">
-            <li
-              onClick={toggleFeedback}
-              className={`cursor-pointer px-2  bg-blue-500 hover:bg-blue-700 py-0.5 rounded-sm transform relative w-fit right-0 transition-width duration-300 ease-in-out ${
-                isActive("/feedback")
-                  ? ""
-                  : ""
-              }`}
-            >
-              Feedback
-            </li>
-            <li
-              onClick={handleServicesURL}
-              className={`cursor-pointer px-2 py-0.5 rounded-sm transform relative w-fit right-0 transition-width duration-300 ease-in-out ${
-                isActive("/service")
-                  ? "bg-gradient-to-l from-green-400 to-gray-600"
-                  : "hover:bg-gradient-to-l from-green-400 to-gray-600"
-              }`}
-            >
-              Services
-            </li>
-            <li
-              onClick={handleAboutURL}
-              className={`cursor-pointer px-2 py-0.5 rounded-sm transform relative w-fit right-0 transition-width duration-300 ease-in-out ${
-                isActive("/about")
-                  ? "bg-gradient-to-l from-green-400 to-gray-600"
-                  : "hover:bg-gradient-to-l from-green-400 to-gray-600"
-              }`}
-            >
-              About
-            </li>
-            <li
-              onClick={handleDeveloperURL}
-              className={`cursor-pointer px-2 py-0.5 rounded-sm transform relative w-fit right-0 transition-width duration-300 ease-in-out ${
-                isActive("/developer")
-                  ? "bg-gradient-to-l from-green-400 to-gray-600"
-                  : "hover:bg-gradient-to-l from-green-400 to-gray-600"
-              }`}
-            >
-              Developer
-            </li>
+              <NavItem onClick={toggleFeedback} isActive={isActive("/feedback")}>Feedback</NavItem>
+              <NavItem onClick={() => handleNavigation("/service")} isActive={isActive("/service")}>Services</NavItem>
+              <NavItem onClick={() => handleNavigation("/about")} isActive={isActive("/about")}>About</NavItem>
+              <NavItem onClick={() => handleNavigation("/developer")} isActive={isActive("/developer")}>Developer</NavItem>
+          </div>
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex text-white md:items-center md:space-x-4">
 
-            {isLoggedIn ? (
-              <div className="relative">
-                <img
-                  src={profilePhoto}
-                  alt="pic"
-                  className="h-8 w-8 object-cover border-2 border-yellow-600 rounded-full cursor-pointer"
-                  onClick={toggleProfileMenu}
-                />
-                {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg">
-                    <ul className="flex flex-col">
-                      <li
-                        className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                        onClick={() => {
-                          navigate("/client-profile");
-                          setIsProfileMenuOpen(false);
-                        }}
-                      >
-                        Profile
-                      </li>
-                      <li
-                        className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                        onClick={() => {
-                          navigate("/client-dashboard");
-                          setIsProfileMenuOpen(false);
-                        }}
-                      >
-                        Dashboard
-                      </li>
-                      <li
-                        className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                        onClick={logout}
-                      >
-                        Logout
-                      </li>
-                    </ul>
+              {isLoading ? (
+                <div className="w-20 h-10 bg-gray-300 rounded animate-pulse"></div>
+              ) : isLoggedIn ? (
+                <div className="relative">
+                  <div className="w-20">
+                  <img
+                    src={profilePhoto}
+                    alt="User"
+                    className="h-10 w-10 rounded-full cursor-pointer border-2 border-brand-Yellow"
+                    onClick={toggleProfileMenu}
+                  />
                   </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                to="/client-login"
-                className="relative bg-white text-black py-1 px-4 rounded-sm hover:bg-brand-lightGrow cursor-pointer transform-width duration-300 hover:ease-in-out"
-              >
-                Login
-              </Link>
-            )}
-          </ul>
-
-          {/* Mobile View */}
-          <div className="flex gap-4">
-            {isLoggedIn && (
-              <div className="relative lg:hidden">
-                <img
-                  src={profilePhoto}
-                  alt="User Profile"
-                  className="h-8 w-8 object-cover border-2 border-yellow-600 rounded-full cursor-pointer"
-                  onClick={toggleProfileMenu}
-                />
-                {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg">
-                    <ul className="flex flex-col">
-                      <li
-                        className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                        onClick={() => {
-                          navigate("/client-profile");
-                          setIsProfileMenuOpen(false);
-                        }}
-                      >
+                  {isProfileMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                      <Link to="/client-profile" className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                        <User className="h-4 w-4 mr-2" />
                         Profile
-                      </li>
-                      <li
-                        className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                        onClick={() => {
-                          navigate("/client-dashboard");
-                          setIsProfileMenuOpen(false);
-                        }}
-                      >
+                      </Link>
+                      <Link to="/client-dashboard" className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                        <LayoutDashboard className="h-4 w-4 mr-2" />
                         Dashboard
-                      </li>
-                      <li
-                        className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                        onClick={logout}
-                      >
+                      </Link>
+                      <button onClick={logout} className=" w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                        <LogOut className="h-4 w-4 mr-2" />
                         Logout
-                      </li>
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-            <div className="md:hidden" onClick={toggleDrawer}>
-              {isDrawerOpen ? (
-                <MenuIcon className="h-6 w-6 text-white cursor-pointer" />
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
-                <MenuIcon className="h-6 w-6 text-white cursor-pointer" />
+                <Link to="/client-login" className="bg-indigo-500 hover:bg-indigo-600-600 w-20 mr-12 text-white font-bold py-2 px-4 rounded transition duration-300">
+                  Login
+                </Link>
               )}
             </div>
+
+            {/* Mobile menu button and profile image */}
+            <div className="flex items-center md:hidden">
+              {isLoggedIn && (
+                <img
+                  src={profilePhoto}
+                  alt="User"
+                  className="h-8 w-8 rounded-full cursor-pointer border-2 border-brand-Yellow mr-2"
+                  onClick={toggleProfileMenu}
+                />
+              )}
+              <button
+                onClick={toggleDrawer}
+                className="inline-flex items-center justify-center p-1 rounded text-indigo-900  focus:outline-none  bg-brand-Yellow"
+              >
+                <span className="sr-only">Open main menu</span>
+                {isDrawerOpen ? <CloseIcon className="block h-6 w-6" /> : <MenuIcon className="block h-6 w-6" />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile menu, show/hide based on menu state */}
+        <div className={`md:hidden text-white ${isDrawerOpen ? 'block' : 'hidden'}`}>
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <NavItem onClick={toggleFeedback} isActive={isActive("/feedback")}>Feedback</NavItem>
+            <NavItem onClick={() => handleNavigation("/service")} isActive={isActive("/service")}>Services</NavItem>
+            <NavItem onClick={() => handleNavigation("/about")} isActive={isActive("/about")}>About</NavItem>
+            <NavItem onClick={() => handleNavigation("/developer")} isActive={isActive("/developer")}>Developer</NavItem>
+          </div>
+          <div className="pt-4 pb-3 border-t  border-gray-200/25">
+            {isLoading ? (
+              <div className="flex items-center px-5">
+                <div className="flex-shrink-0">
+                  <div className="h-10 w-10 rounded-full bg- animate-pulse"></div>
+                </div>
+                <div className="ml-3">
+                  <div className="h-4 w-24 bg-gray-300 rounded animate-pulse"></div>
+                </div>
+              </div>
+            ) : isLoggedIn ? (
+              <div className="flex items-center px-5">
+                <div className="flex-shrink-0">
+                  <img className="h-10 w-10 rounded-full" src={profilePhoto} alt="User" />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium text-white">{userEmail}</div>
+                  <div className="text-sm font-medium text-gray-500"></div>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-3 px-2">
+                <Link
+                  to="/client-login"
+                  className="block text-center w-full  bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300"
+                >
+                  Login
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </nav>
 
-
-
-{/* Side Drawer for small screen */}
-<div className={`bg-black/85 w-full h-screen absolute top-0 right-0 ${
-          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out`}>
-<div
-        className={`fixed top-0 w-1/2 left-0   h-full bg-brand-navbg opacity-85 text-white p-6 z-40 transform ${
-          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out`}
-      >
-        <div className="flex gap-8 px-2 rounded bg-white w-fit items-center relative justify-between">
-          <div
-            onClick={HomePageRedirection}
-            className="font-extrabold text-yellow-400 text-2xl"
-          >
-            RENT<span className="text-lg font-LogoText">OOr</span>A
-          </div>
-          <CloseIcon
-            className="top-4  h-6 w-6 cursor-pointer text-black hover:bg-blue-400 hover:text-red-500"
-            onClick={toggleDrawer}
-          />
-        </div>
-        <ul className="flex flex-col gap-4 mt-4">
-      
-          <li
-            onClick={handleServicesURL}
-            className={`cursor-pointer px-4 py-1 rounded-sm hover:bg-gradient-to-r from-blue-500 to-slate-50 hover:text-black ${
-              isActive("/service") ? "bg-gradient-to-r from-blue-500 to-slate-50" : ""
-            }`}
-          >
-            Services
-          </li>
-          <li
-            onClick={handleAboutURL}
-            className={`cursor-pointer px-4 py-1 rounded-sm hover:bg-gradient-to-r from-blue-500 to-slate-50 hover:text-black ${
-              isActive("/about") ? "bg-gradient-to-r from-blue-500 to-slate-50" : ""
-            }`}
-          >
-            About
-          </li>
-          <li
-            onClick={handleDeveloperURL}
-            className={`cursor-pointer px-4 py-1 rounded-sm hover:bg-gradient-to-r from-blue-500 to-slate-50 hover:text-black ${
-              isActive("/developer") ? "bg-gradient-to-r from-blue-500 to-slate-50" : ""
-            }`}
-          >
-            Developer
-          </li>
-          <li
-            onClick={toggleFeedback}
-            className={`cursor-pointer px-4 py-1 rounded-sm hover:bg-gradient-to-r  from-blue-500 to-slate-50 hover:text-black ${
-              isActive("/feedback") ? "bg-gradient-to-r from-blue-500 to-slate-50" : " bg-black "
-            }`}
-          >
-            Feedback
-          </li>
-          
-          <Link
-            to="/client-login"
-            className="relative bg-brand-dark hover:bg-blue-500 bg-opacity-70 rounded-sm py-1 px-4 cursor-pointer transform translate-right duration-300 ease-in-out"
-          >
-            Login
-           
+      {/* Profile menu for mobile */}
+      {isProfileMenuOpen && (
+        <div className="md:hidden absolute right-12 top-14 lg:top-16 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+          <Link to="/client-profile" className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+            <User className="h-4 w-4 mr-2" />
+            Profile
           </Link>
-        </ul>
-</div>
-</div>
-      {/* FeedbackForm Component */}
+          <Link to="/client-dashboard" className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+            <LayoutDashboard className="h-4 w-4 mr-2" />
+            Dashboard
+          </Link>
+          <button onClick={logout} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </button>
+        </div>
+      )}
+
       {isFeedbackOpen && <FeedbackForm toggleFeedback={toggleFeedback} />}
     </div>
   );

@@ -44,8 +44,8 @@ export const locationData = [
         },
         {
           name: "Saptari",
-          municipalities: ["Rajbiraj Municipality", "Saptakoshi", "Kanchanrup"],
-          ruralMunicipalities: ["Bhagwanpur", "Khadak", "Sukhpur", "Mahadeva", "Kalyanpur"],
+          municipalities: ["Rajbiraj Municipality", "Saptakoshi Municipality", "Kanchanrup Municipality", "Hanumannagar Municipality", "Khadak Municipality", "Shambhunath Municipality", "Surunga Municipality", "Bodebarsain Municipality", "Dakneshwori Municipality"],
+          ruralMunicipalities: ["Bhagwanpur Rural Municipality", "Khadak Rural Municipality", "Sukhpur Rural Municipality", "Mahadeva Rural Municipality", "Kalyanpur Rural Municipality", "Balan-Bihul Rural Municipality", "Agnisair Krishna Savaran Rural Municipality", "Rupani Rural Municipality", "Rajgadh Rural Municipality", "Bishnupur Rural Municipality", "Chhinnamasta Rural Municipality", "Tirhut Rural Municipality", "Tilathi Koiladi Rural Municipality", "Belhi Chapena Rural Municipality"],
         },
         {
             name: "Siraha",
@@ -54,13 +54,13 @@ export const locationData = [
         },
         {
           name: "Mahottari",
-          municipalities: ["Jaleshwar Municipality", "Mahottari Municipality"],
+          municipalities: ["Jaleshwar Municipality", "Mahottari Municipality" , "Manara-Shiswa Municipality"],
           ruralMunicipalities: ["Bhangaha", "Balawa", "Sukhma", "Bhagwanpur", "Sitamari"],
         },
         {
           name: "Dhanusa",
-          municipalities: ["Janakpur Sub-metropolitan", "Dhanusa Municipality"],
-          ruralMunicipalities: ["Hokapur", "Khalanga", "Dhanushadham", "Mahindranagar", "Jaleshwar Rural"],
+          municipalities: ["Janakpur Sub-metropolitan", "Dhanusa Municipality" ],
+          ruralMunicipalities: ["Hokapur", "Khalanga", "Dhanushadham", "Mahindranagar", "Jaleshwar Rural" ],
         },
       ],
     },
@@ -211,36 +211,6 @@ export const locationData = [
           name: "Dadeldhura",
           municipalities: ["Dadeldhura Municipality"],
           ruralMunicipalities: ["Amargadhi", "Kailash", "Dandabazar", "Patan"],
-        },
-      ],
-    },
-    {
-      name: "Province No. 2",
-      districts: [
-        {
-          name: "Sarlahi",
-          municipalities: ["Sarlahi Municipality", "Malangawa", "Lahan Municipality"],
-          ruralMunicipalities: ["Ishworpur", "Hariwan", "Madhuwani", "Khadak", "Barahathawa"],
-        },
-        {
-          name: "Mahottari",
-          municipalities: ["Jaleshwar Municipality"],
-          ruralMunicipalities: ["Bhangaha", "Balawa", "Sukhma", "Bhagwanpur", "Sitamari"],
-        },
-        {
-          name: "Dhanusa",
-          municipalities: ["Janakpur Sub-metropolitan"],
-          ruralMunicipalities: ["Hokapur", "Khalanga", "Dhanushadham", "Mahindranagar", "Jaleshwar Rural"],
-        },
-        {
-          name: "Saptari",
-          municipalities: ["Rajbiraj Municipality"],
-          ruralMunicipalities: ["Khadak", "Sukhpur", "Mahadeva", "Kalyanpur", "Shivaji"],
-        },
-        {
-          name: "Parsa",
-          municipalities: ["Birgunj Metropolitan"],
-          ruralMunicipalities: ["Sakhuwa Prasad", "Patan", "Sitalpur", "Sukraraj", "Bhadeukhola"],
         },
       ],
     },

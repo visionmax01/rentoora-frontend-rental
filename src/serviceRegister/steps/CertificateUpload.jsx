@@ -35,7 +35,7 @@ const CertificateUpload = ({ formData, handleChange, handleNext, handlePrev }) =
       {selectedFile && (
         <div className="mb-4">
           <h3 className="font-semibold">Selected Certificate Preview:</h3>
-          <img src={selectedFile} alt="Certificate Preview" className="mt-2 w-full max-h-64 object-cover" />
+          <img src={selectedFile} alt="Certificate Preview" className="mt-2 h-72 w-44 object-cover" />
         </div>
       )}
 

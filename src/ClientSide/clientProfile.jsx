@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
-import Api from '../utils/Api.js'
-import { PenBoxIcon, XIcon } from "lucide-react";
+import Api from "../utils/Api.js";
 import manpng from "../assets/img/man.png";
+import {toast} from "react-toastify";
+import { FaSpinner } from "react-icons/fa";
+import { locationData } from "../utils/LocationData";
 import ProfilePopup from "../utils/ProfilePopup.jsx";
-import toast from 'react-hot-toast';
-import { FaSpinner } from 'react-icons/fa';
+import { PenBoxIcon, XIcon } from "lucide-react";
+import Select from 'react-select';
 
 const ClientProfile = () => {
   const [user, setUser] = useState(null);
-  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [profilePhoto, setProfilePhoto] = useState(null); 
   const [citizenshipImagePath, setDocumentePhoto] = useState(null);
-  const [editingField, setEditingField] = useState(null);
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [details, setDetails] = useState({
     name: "",
@@ -20,12 +22,20 @@ const ClientProfile = () => {
     province: "",
     district: "",
     municipality: "",
-    role: '',
-    dateOfBirth: ''
+    role: "",
+    dateOfBirth: "",
   });
+  const [isSavingPersonal, setIsSavingPersonal] = useState(false);
+  const [isSavingAddress, setIsSavingAddress] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [provinces, setProvinces] = useState(locationData);
+  const [districts, setDistricts] = useState([]);
+  const [municipalities, setMunicipalities] = useState([]);
+  const [isEditingPersonal, setIsEditingPersonal] = useState(false); // Track if editing personal details
+  const [isEditingAddress, setIsEditingAddress] = useState(false); // Track if editing address details
+  const [provinceOptions, setProvinceOptions] = useState([]);
+  const [districtOptions, setDistrictOptions] = useState([]);
+  const [municipalityOptions, setMunicipalityOptions] = useState([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -47,7 +57,6 @@ const ClientProfile = () => {
           role: response.data.role,
           dateOfBirth: formatDate(response.data.dateOfBirth),
         });
-        // Set profile photo and document image URLs directly
         setProfilePhoto(response.data.profilePhotoPath);
         setDocumentePhoto(response.data.citizenshipImagePath);
       } catch (error) {
@@ -60,48 +69,147 @@ const ClientProfile = () => {
     fetchUserData();
   }, []);
 
-  const handleEdit = (field) => {
-    if (field !== "dateOfBirth") {
-      setEditingField(field);
+  useEffect(() => {
+    if (details.province) {
+      const selectedProvince = provinces.find(
+        (p) => p.name === details.province
+      );
+      setDistricts(selectedProvince ? selectedProvince.districts : []);
     }
-  };
+  }, [details.province]);
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      await Api.put("auth/update-user-details", {
-        ...details,
-        dateOfBirth: new Date(details.dateOfBirth).toISOString()
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      toast.success(`${editingField} updated successfully!`);
-      setEditingField(null);
-      const response = await Api.get("auth/user-data", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      setUser(response.data);
-      // Update profile photo and document image URLs again if needed
-      setProfilePhoto(response.data.profilePhotoPath);
-      setDocumentePhoto(response.data.citizenshipImagePath);
-    } catch (error) {
-      console.error("Error saving user data:", error);
-    } finally {
-      setIsSaving(false);
+  useEffect(() => {
+    if (details.district) {
+      const selectedDistrict = districts.find(
+        (d) => d.name === details.district
+      );
+      setMunicipalities(
+        selectedDistrict
+          ? [
+              ...selectedDistrict.municipalities,
+              ...selectedDistrict.ruralMunicipalities,
+            ]
+          : []
+      );
     }
-  };
+  }, [details.district]);
 
-  const handleCancel = () => {
-    setEditingField(null);
-  };
+  useEffect(() => {
+    // Set province options
+    const provinces = locationData.map(province => ({
+      value: province.name,
+      label: province.name
+    }));
+    setProvinceOptions(provinces);
+  }, []);
 
-  const handleChange = (e) => {
+  useEffect(() => {
+    if (details.province) {
+      const province = locationData.find(p => p.name === details.province);
+      if (province) {
+        const districts = province.districts.map(district => ({
+          value: district.name,
+          label: district.name
+        }));
+        setDistrictOptions(districts);
+      }
+    } else {
+      setDistrictOptions([]);
+    }
+  }, [details.province]);
+
+  useEffect(() => {
+    if (details.province && details.district) {
+      const province = locationData.find(p => p.name === details.province);
+      const district = province?.districts.find(d => d.name === details.district);
+      if (district) {
+        const allMunicipalities = [
+          ...(district.municipalities || []),
+          ...(district.ruralMunicipalities || [])
+        ].map(municipality => ({
+          value: municipality,
+          label: municipality
+        }));
+        setMunicipalityOptions(allMunicipalities);
+      }
+    } else {
+      setMunicipalityOptions([]);
+    }
+  }, [details.province, details.district]);
+
+  const handlePersonalChange = (e) => {
     const { name, value } = e.target;
     setDetails({ ...details, [name]: value });
+  };
+
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setDetails({ ...details, [name]: value });
+  };
+
+  const handleSavePersonalDetails = async () => {
+    setIsSavingPersonal(true);
+    try {
+      await Api.put(
+        "auth/update-user-details",
+        {
+          ...details,
+          dateOfBirth: new Date(details.dateOfBirth).toISOString(),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      toast.success("Personal details updated successfully!");
+    } catch (error) {
+      console.error("Error saving personal details:", error);
+      toast.error("Failed to update personal details.");
+    } finally {
+      setIsSavingPersonal(false);
+      setIsEditingPersonal(false); // Stop editing after saving
+    }
+  };
+
+  const handleSaveAddressDetails = async () => {
+    setIsSavingAddress(true);
+    try {
+      await Api.put(
+        "auth/update-user-details",
+        {
+          province: details.province,
+          district: details.district,
+          municipality: details.municipality,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      toast.success("Address details updated successfully!");
+    } catch (error) {
+      console.error("Error saving address details:", error);
+      toast.error("Failed to update address details.");
+    } finally {
+      setIsSavingAddress(false);
+      setIsEditingAddress(false); // Stop editing after saving
+    }
+  };
+
+  const handleEditPersonalDetails = () => {
+    setIsEditingPersonal(true);
+  };
+
+  const handleEditAddressDetails = () => {
+    setIsEditingAddress(true);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().split("T")[0];
   };
 
   const handleProfilePicClick = () => {
@@ -111,11 +219,9 @@ const ClientProfile = () => {
   const handlePopupClose = () => {
     setIsPopupOpen(false);
   };
-
   const handleProfilePicUpload = () => {
     // Handle image upload logic if required
   };
-
   const handleImagePreviewClick = () => {
     setIsImagePreviewOpen(true);
   };
@@ -123,139 +229,278 @@ const ClientProfile = () => {
   const handleImagePreviewClose = () => {
     setIsImagePreviewOpen(false);
   };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toISOString().split('T')[0];
-  };
-
   return (
-    <div className="w-full container mx-auto lg:p-8 text-white bg-brand-bgColor h-fit">
-      <div className="flex flex-col  lg:pl-12 p-4  gap-12 md:flex-row overflow-hidden">
-        {isLoading ? (
-          <div className="w-full h-full flex justify-center items-center">
-            <FaSpinner className="animate-spin h-8 w-8 text-blue-500 mr-3" />
+    <div className="w-full min-h-screen  bg-brand-bgColor  text-white">
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex flex-col lg:flex-row gap-12">
+          {isLoading ? (
+            <div className="w-full absolute top-0 left-0 h-screen flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           </div>
-        ) : (
-          <>
-            {/* Profile Picture Section */}
-            <div className="space-y-8 lg:w-[250px] w-full">
-              <div className="relative lg:h-64 h-32 lg:w-64 w-32 flex flex-col items-center">
-                {profilePhoto ? (
-                  <img
-                    className="profile-img w-full h-full rounded-2xl object-cover bg-brand-dark border-b-4 border-t-4 border-red-700"
-                    src={profilePhoto} // Directly set the profile photo URL
-                    alt="Profile"
-                  />
-                ) : (
-                  <img
-                    className="profile-img w-full h-full rounded-2xl object-cover bg-brand-dark"
-                    src={manpng}
-                    alt="Default Profile"
-                  />
-                )}
-                <label htmlFor="profilePic" className="cursor-pointer text-blue-500 hover:underline">
-                  <PenBoxIcon
-                    onClick={handleProfilePicClick}
-                    className="cursor-pointer absolute bottom-4 right-4 bg-gray-400 lg:w-8 w-6 lg:h-8 h-6 p-1 hover:bg-white text-black rounded-lg"
-                  />
-                </label>
-              </div>
-
-              <div className="bg-brand-Colorpurple rounded">
-                <h2 className="py-2 text-center font-sans rounded bg-blue-700">Attached Document *</h2>
-                <div className="relative p-2">
-                  {citizenshipImagePath ? (
-                    <img
-                      className="profile-img w-full lg:h-44 h-24 object-fit bg-brand-dark blur-sm"
-                      src={citizenshipImagePath} // Directly set the citizenship image URL
-                      alt="Document"
-                      onClick={handleImagePreviewClick}
-                    />
-                  ) : (
-                    <p>No citizenship image available.</p>
-                  )}
-                  <button
-                    onClick={handleImagePreviewClick}
-                    className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-lg font-bold"
+          ) : (
+            <>
+              {/* Profile Picture Section */}
+              <div className="lg:ml-12 space-y-8">
+                <div className="relative group">
+                  <div className="w-64 h-64 mx-auto overflow-hidden rounded-full shadow-lg border-4 border-blue-500">
+                    {profilePhoto ? (
+                      <img
+                        className="w-full h-full object-cover transition duration-300 "
+                        src={profilePhoto}
+                        alt="Profile"
+                      />
+                    ) : (
+                      <img
+                        className="w-full h-full object-cover transition duration-300 "
+                        src={manpng}
+                        alt="Default Profile"
+                      />
+                    )}
+                  </div>
+                  <label
+                    htmlFor="profilePic"
+                    className="absolute bottom-4 right-4 bg-blue-500 rounded-full p-2 cursor-pointer hover:bg-blue-600 transition duration-300"
                   >
-                    Preview
-                  </button>
+                    <PenBoxIcon
+                      onClick={handleProfilePicClick}
+                      className="w-6 h-6 text-white"
+                    />
+                  </label>
+                </div>
+
+                <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                  <h2 className="py-3 text-center font-sans text-lg font-bold bg-blue-600">
+                    Attached Document
+                  </h2>
+                  <div className="relative p-4">
+                    {citizenshipImagePath ? (
+                      <img
+                        className="w-full h-48 object-cover rounded-lg filter blur-sm"
+                        src={citizenshipImagePath}
+                        alt="Document"
+                      />
+                    ) : (
+                      <p className="text-center py-4">No citizenship image available.</p>
+                    )}
+                    <button
+                      onClick={handleImagePreviewClick}
+                      className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-lg font-bold rounded-lg transition duration-300 hover:bg-opacity-70"
+                    >
+                      Preview
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Personal Details Section */}
-            <div className="md:w-1/2 bg-brand-bgColoe space-y-4">
-              <h1 className="text-2xl font-bold mb-4">Profile Details</h1>
-              <div className="bg-red-100 bg-opacity-25 p-2 lg:text-lg text-[12px] rounded mb-4 flex justify-between">
-                <h2 className="font-bold">
-                  Client ID &nbsp;&nbsp;:&nbsp;&nbsp;{" "}
-                  <span className="text-blue-300">{details.accountId}</span>
-                </h2>
-                <h2 className="font-bold">
-                  Account Type &nbsp;&nbsp;:&nbsp;&nbsp;{" "}
-                  <span className="text-blue-300">{user.role === 0 ? "Client" : "Admin"}</span>
-                </h2>
-              </div>
-              <div className="space-y-8">
-                {Object.keys(details).map((key) => {
-                  if (key === "accountId" || key === "role") return null; // Skip accountId and role fields
-
-                  return (
-                    <div className="relative" key={key}>
-                      <label className="block text-sm font-medium">
-                        {key.charAt(0).toUpperCase() + key.slice(1)}{" "}
-                        <span className="text-red-600"> *</span>
-                      </label>
-                      <input
-                        type="text"
-                        name={key}
-                        value={key === "dateOfBirth" ? formatDate(details[key]) : details[key]}
-                        onChange={handleChange}
-                        disabled={editingField !== key}
-                        className="py-2 mt-1 block w-full bg-transparent border-b-2 outline-none focus:border-b-blue-500"
-                      />
-                      {editingField !== key && key !== "dateOfBirth" && (
-                        <PenBoxIcon
-                          className="absolute hover:text-white bottom-0 p-1 right-0 transform -translate-y-1/2 text-sm text-blue-500 cursor-pointer"
-                          onClick={() => handleEdit(key)}
+              {/* Personal and Address Details Section */}
+              <div className="lg:w-2/3 space-y-8">
+                <div className="bg-gray-800 rounded-lg shadow-md p-6">
+                  <h1 className="text-3xl font-bold mb-6 text-blue-400">Personal Details</h1>
+                  <div className="bg-gray-700 p-4 rounded-lg mb-6 flex justify-between text-sm">
+                    <h2 className="font-semibold">
+                      Client ID: <span className="text-blue-300">{details.accountId}</span>
+                    </h2>
+                    <h2 className="font-semibold">
+                      Account Type: <span className="text-blue-300">{user.role === 0 ? "Client" : "Admin"}</span>
+                    </h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {["name", "email", "phoneNo", "dateOfBirth"].map((key) => (
+                      <div className="relative" key={key}>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">
+                          {key.charAt(0).toUpperCase() + key.slice(1)}
+                        </label>
+                        <input
+                          type="text"
+                          name={key}
+                          value={details[key]}
+                          onChange={handlePersonalChange}
+                          disabled={!isEditingPersonal}
+                          className="w-full p-3 rounded-md bg-gray-700 focus:ring-2 focus:ring-blue-500 border-transparent outline-none transition duration-300"
                         />
-                      )}
+                      </div>
+                    ))}
+                  </div>
+                  {!isEditingPersonal ? (
+                    <button
+                      className="mt-6 text-blue-400 hover:text-blue-300 transition duration-300"
+                      onClick={handleEditPersonalDetails}
+                    >
+                      Edit Personal Details
+                    </button>
+                  ) : (
+                    <div className="flex justify-end gap-4 mt-6">
+                      <button
+                        className="px-4 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-700 transition duration-300"
+                        onClick={() => setIsEditingPersonal(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition duration-300"
+                        onClick={handleSavePersonalDetails}
+                        disabled={isSavingPersonal}
+                      >
+                        {isSavingPersonal ? (
+                          <FaSpinner className="animate-spin" />
+                        ) : (
+                          "Save Personal Details"
+                        )}
+                      </button>
                     </div>
-                  );
-                })}
+                  )}
+                </div>
+
+                <div className="bg-gray-800 rounded-lg shadow-md p-6">
+                  <h1 className="text-3xl font-bold mb-6 text-blue-400">Address Details</h1>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="relative">
+                      <label className="block text-sm font-medium text-gray-400 mb-1">
+                        Province
+                      </label>
+                      <Select
+                        value={provinceOptions.find(option => option.value === details.province)}
+                        options={provinceOptions}
+                        onChange={(option) => {
+                          setDetails({
+                            ...details,
+                            province: option.value,
+                            district: "",
+                            municipality: ""
+                          });
+                        }}
+                        isDisabled={!isEditingAddress}
+                        placeholder="Select Province"
+                        isSearchable={true}
+                        className="text-black"
+                        menuPlacement="top"
+                        menuPosition="fixed"
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            backgroundColor: !isEditingAddress ? '#374151' : 'white',
+                            borderColor: '#374151',
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            color: !isEditingAddress ? 'white' : 'black',
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            zIndex: 9999
+                          })
+                        }}
+                      />
+                    </div>
+
+                    <div className="relative">
+                      <label className="block text-sm font-medium text-gray-400 mb-1">
+                        District
+                      </label>
+                      <Select
+                        value={districtOptions.find(option => option.value === details.district)}
+                        options={districtOptions}
+                        onChange={(option) => {
+                          setDetails({
+                            ...details,
+                            district: option.value,
+                            municipality: ""
+                          });
+                        }}
+                        isDisabled={!isEditingAddress || !details.province}
+                        placeholder="Select District"
+                        isSearchable={true}
+                        className="text-black"
+                        menuPlacement="top"
+                        menuPosition="fixed"
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            backgroundColor: !isEditingAddress ? '#374151' : 'white',
+                            borderColor: '#374151',
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            color: !isEditingAddress ? 'white' : 'black',
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            zIndex: 9999
+                          })
+                        }}
+                      />
+                    </div>
+
+                    <div className="relative">
+                      <label className="block text-sm font-medium text-gray-400 mb-1">
+                        Municipality
+                      </label>
+                      <Select
+                        value={municipalityOptions.find(option => option.value === details.municipality)}
+                        options={municipalityOptions}
+                        onChange={(option) => {
+                          setDetails({
+                            ...details,
+                            municipality: option.value
+                          });
+                        }}
+                        isDisabled={!isEditingAddress || !details.district}
+                        placeholder="Select Municipality"
+                        isSearchable={true}
+                        className="text-black"
+                        menuPlacement="top"
+                        menuPosition="fixed"
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            backgroundColor: !isEditingAddress ? '#374151' : 'white',
+                            borderColor: '#374151',
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            color: !isEditingAddress ? 'white' : 'black',
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            zIndex: 9999
+                          })
+                        }}
+                      />
+                    </div>
+                  </div>
+                  {!isEditingAddress ? (
+                    <button
+                      className="mt-6 text-blue-400 hover:text-blue-300 transition duration-300"
+                      onClick={handleEditAddressDetails}
+                    >
+                      Edit Address Details
+                    </button>
+                  ) : (
+                    <div className="flex justify-end gap-4 mt-6">
+                      <button
+                        className="px-4 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-700 transition duration-300"
+                        onClick={() => setIsEditingAddress(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition duration-300"
+                        onClick={handleSaveAddressDetails}
+                        disabled={isSavingAddress}
+                      >
+                        {isSavingAddress ? (
+                          <FaSpinner className="animate-spin" />
+                        ) : (
+                          "Save Address Changes"
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="mt-6 flex justify-end">
-                {editingField && (
-                  <button
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className={`bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    {isSaving ? (
-                      <span className="flex items-center">
-                        <FaSpinner className="animate-spin h-5 w-5 mr-3" />
-                        Saving...
-                      </span>
-                    ) : (
-                      "Save"
-                    )}
-                  </button>
-                )}
-                {editingField && (
-                  <button
-                    onClick={handleCancel}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 ml-4"
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
 
       {/* ProfilePopup Component */}
@@ -264,20 +509,21 @@ const ClientProfile = () => {
         onClose={handlePopupClose}
         onUpload={handleProfilePicUpload}
       />
-      {/* Image Preview Popup (optional) */}
+
+      {/* Image Preview Popup */}
       {isImagePreviewOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white mx-2 p-8 rounded-lg relative">
+        <div className="fixed inset-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-8  rounded-lg relative w-fit mx-4">
             <button
               onClick={handleImagePreviewClose}
-              className="absolute top-0 right-0"
+              className="absolute top-2 right-2 text-gray-400 hover:text-white transition duration-300"
             >
-              <XIcon className="bg-gray-700 w-6 h-6 p-1 hover:bg-red-600" />
+              <XIcon className="w-6 h-6" />
             </button>
             <img
               src={citizenshipImagePath}
               alt="Document Preview"
-              className="lg:w-[45vw] lg:h-[30vw] "
+              className="w-[450px] h-full rounded-lg"
             />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { toast } from "react-hot-toast"; // Toast for notifications
+import { toast } from "react-toastify"; // Toast for notifications
 import { FaSpinner } from 'react-icons/fa';
 import Api from '../utils/Api.js'
 
@@ -77,12 +77,12 @@ const UpdateClient = ({ client, onClose, refreshClients }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white overflow-y-auto lg:h-auto h-[85%] p-8 mx-2 rounded-lg shadow-lg max-w-3xl w-full relative">
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-        >
-          ✕
-        </button>
+            <button
+              onClick={onClose}
+              className="bg-gray-300 absolute top-2 right-2 text-red-600 hover:text-red-300 px-4 py-2 rounded"
+            >
+              X
+            </button>
         <h3 className="text-2xl font-bold mb-6 text-center">Update Client Details</h3>
         <form onSubmit={handleSubmit}>
           {/* First row with two input fields */}

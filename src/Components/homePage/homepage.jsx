@@ -10,6 +10,7 @@ import Footer from "../Footer";
 import Services from "./services";
 import Testimonials from "./testimonials";
 import Chatbot from "../../utils/chatbot";
+import { motion } from "framer-motion";
 
 const Homepage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,8 +44,8 @@ const Homepage = () => {
           </h2>
         </div>
         <div className="mx-auto flex flex-col items-center justify-center">
-          <div className="w-full flex flex-col h-64 rounded-lg relative">
-            <div className="absolute flex justify-center w-full z-20">
+          <div className="w-full flex flex-col  rounded-lg relative">
+            <div className=" flex justify-center w-full">
               <div className="max-w-fi py-4">
                 {/* Search section */}
                 <div className="searchBox bg-white bg-opacity-10 flex justify-between items-center p-2 gap-2 rounded-lg">
@@ -74,7 +75,7 @@ const Homepage = () => {
           </div>
         </div>
       </div>
-      <div className="text-white relative pb-8 top-4 md:mt-28 mt-[350px] text-start opacity-85">
+      <div className="text-white relative pb-8 top-4  text-start opacity-85">
         <p className="text-4xl text-center font-extrabold space-x-4"></p>
         <p className="text-sm md:text-2xl w-[90%] md:w-3/4 mx-auto text-wrap break-words text-center capitalize">
           Service to make people's life easier and smart with technology. You can
@@ -82,10 +83,17 @@ const Homepage = () => {
           different areas of Nepal.
         </p>
       </div>
-      <section className="relative mb-5 border-t-4 border-gray-800 mt-5">
+     {/* Plumber Section */}
+     <section className="relative mb-5 border-t-4 border-gray-800 mt-5">
         <div className="md:block hidden opacity-25 torch w-8 h-8 rounded-full absolute right-5 top-5 bg-black bg-opacity-50 border-l-4 border-white -rotate-45"></div>
         <div className="md:block hidden opacity-25 torch w-8 h-8 rounded-full absolute left-5 top-5 bg-black bg-opacity-50 border-l-4 border-white -rotate-[120deg]"></div>
-        <div className="text-white w-full md:w-[75%] mx-auto min-h-fit flex flex-wrap md:rounded-lg px-8 py-8">
+        <motion.div
+          className="text-white w-full md:w-[75%] mx-auto min-h-fit flex flex-wrap md:rounded-lg px-8 py-8 overflow-hidden" // Ensure overflow is hidden to prevent content overflow
+          initial={{ opacity: 0, x: -100 }} 
+          whileInView={{ opacity: 1, x: 0 }} 
+          transition={{ duration: 1, ease: "easeOut" }} 
+          viewport={{ once: true }} 
+        >
           <div className="w-[60%] relative md:top-12 break-words">
             <h1 className="md:text-[3rem] text-2xl font-Roboto">Plumber</h1>
             <p className="md:text-2xl text-sm mt-2 md:mt-5">
@@ -93,21 +101,35 @@ const Homepage = () => {
             </p>
           </div>
           <div className="w-[40%] flex h-auto items-center justify-center">
-            <img
+            <motion.img
               className="glowShadow object-cover md:w-60 md:h-60 opacity-80"
               src={PlumberIcon}
               alt="Plumber Icon"
+              initial={{ opacity: 0, x: 100 }} 
+              whileInView={{ opacity: 1, x: 0 }} 
+              transition={{ duration: 1, ease: "easeOut" }}
             />
           </div>
-        </div>
+        </motion.div>
       </section>
+
+      {/* Electrician Section */}
       <section className="mb-5 border-t-4 border-gray-800 mt-5">
-        <div className="relative text-white w-full md:w-[75%] mx-auto min-h-fit flex flex-wrap md:rounded-lg px-8 py-8">
+        <motion.div
+          className="relative text-white w-full md:w-[75%] mx-auto min-h-fit flex flex-wrap md:rounded-lg px-8 py-8 overflow-hidden"
+          initial={{ opacity: 0, x: -100 }}  
+          whileInView={{ opacity: 1, x: 0 }}  
+          transition={{ duration: 1, ease: "easeOut" }}
+          viewport={{ once: true }}
+        >
           <div className="w-[40%] flex h-auto justify-between pr-6">
-            <img
+            <motion.img
               className="glowShadow object-cover md:w-60 md:h-60 opacity-80"
               src={Electrician}
               alt="Electrician Icon"
+              initial={{ opacity: 0, x: 100 }}  
+              whileInView={{ opacity: 1, x: 0 }}  
+              transition={{ duration: 1, ease: "easeOut" }}
             />
           </div>
           <div className="w-[60%] relative md:top-12 break-words">
@@ -116,10 +138,18 @@ const Homepage = () => {
               You can find the best electrician for your home building anywhere at your fingertips.
             </p>
           </div>
-        </div>
+        </motion.div>
       </section>
+
+      {/* Apartment Section */}
       <section className="relative mb-5 border-t-4 border-b-4 border-gray-800 mt-5">
-        <div className="text-white w-full md:w-[75%] mx-auto min-h-fit flex flex-wrap md:rounded-lg px-8 py-8">
+        <motion.div
+          className="text-white w-full md:w-[75%] mx-auto min-h-fit flex flex-wrap md:rounded-lg px-8 py-8 overflow-hidden"
+          initial={{ opacity: 0, x: -100 }} 
+          whileInView={{ opacity: 1, x: 0 }} 
+          transition={{ duration: 1, ease: "easeOut" }}
+          viewport={{ once: true }}
+        >
           <div className="w-[60%] relative md:top-12 break-words">
             <h1 className="md:text-[3rem] text-2xl font-Roboto">Apartment</h1>
             <p className="md:text-2xl text-sm mt-2 md:mt-5">
@@ -127,13 +157,16 @@ const Homepage = () => {
             </p>
           </div>
           <div className="w-[40%] flex h-auto items-center justify-center">
-            <img
+            <motion.img
               className="glowShadow object-cover md:w-60 md:h-60 opacity-80"
               src={Apartment}
               alt="Apartment Icon"
+              initial={{ opacity: 0, x: 100 }} 
+              whileInView={{ opacity: 1, x: 0 }} 
+              transition={{ duration: 1, ease: "easeOut" }}
             />
           </div>
-        </div>
+        </motion.div>
       </section>
       <Testimonials />
       <Footer />

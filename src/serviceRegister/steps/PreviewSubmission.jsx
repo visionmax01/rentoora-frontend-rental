@@ -20,6 +20,7 @@ const PreviewSubmission = ({ formData, handlePrev }) => {
     workingFrom,
     workingTo,
     experience,
+    rateCharge,
   } = formData;
 
   const totalQuestions = examAnswers.length;
@@ -27,26 +28,28 @@ const PreviewSubmission = ({ formData, handlePrev }) => {
 
   const handleSubmit = async () => {
     setLoading(true);
+  
     if (!certificate) {
       toast.error('Please upload a certificate.');
+      setLoading(false);
       return;
     }
-  
+
     const data = new FormData();
   
     // Append data fields
     data.append('servicesType', serviceType);
+    data.append('rateCharge', rateCharge);
     data.append('experience', experience);
     data.append('workingFrom', workingFrom);
     data.append('workingTo', workingTo);
     data.append('examResults', `${score} out of ${totalQuestions} (${percentage}%) - ${pass ? 'Pass' : 'Fail'}`);
     data.append('address', address);
-  
-    // Append the certificate file if it exists
+
     if (certificate) {
       data.append('certificate', certificate);
     }
-  
+
     try {
       const response = await Api.post('service-provider/register', data, {
         headers: {
@@ -54,19 +57,29 @@ const PreviewSubmission = ({ formData, handlePrev }) => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
-  
+
       if (response.status === 201) {
         setSubmissionStatus({
-          message: 'Application submitted successfully!',
-          verified: false,  // Initially, the application is not verified
+          message: response.data.message,
+          verified: false,
           serviceType,
         });
         setSubmitted(true);
-        toast.success('Application submitted successfully!');
+        toast.success(response.data.message);
       }
     } catch (error) {
-      console.error('Failed to submit the application:', error.response?.data || error);
-      toast.error(error.response?.data?.error || 'Failed to submit the application. Please try again.');
+      console.log('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      // Display the specific error message from the backend
+      if (error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error('Failed to submit the application. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
@@ -87,7 +100,7 @@ const PreviewSubmission = ({ formData, handlePrev }) => {
       ) : (
         <div>
           <h2 className="text-xl font-bold mb-4">Preview & Submit</h2>
-          <div className="mb-4 h-[350px] overflow-y-auto">
+          <div className="mb-4 lg:h-[400px] h-[550px] overflow-y-auto">
             {/* Personal Info */}
             <p className="py-3"><strong>Address:</strong> {address}</p>
             
@@ -104,6 +117,10 @@ const PreviewSubmission = ({ formData, handlePrev }) => {
                 <tr>
                   <td className="py-2 px-4 border">Service Type</td>
                   <td className="py-2 px-4 border bg-yellow-500/45">{serviceType}</td>
+                </tr>
+                <tr>
+                  <td className="py-2 px-4 border">Rate Charge</td>
+                  <td className="py-2 px-4 border bg-yellow-500/45">(₹){rateCharge}/hr</td>
                 </tr>
                 <tr>
                   <td className="py-2 px-4 border">Working From</td>

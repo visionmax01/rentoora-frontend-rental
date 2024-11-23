@@ -40,7 +40,8 @@ export default {
           navbg: '#4B4444',
           bgColor:'#180f27',
           white:"#FFFFFF",
-          Black: '#000000'
+          Black: '#000000',
+          Yellow: "#e4d691"
         },
         secondary: {
           light: '#FFBB3A',

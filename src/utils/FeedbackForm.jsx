@@ -1,28 +1,33 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from 'axios';
-import { FaCheckCircle, FaSpinner } from "react-icons/fa"; // Import success and spinner icons
-import toast from 'react-hot-toast'; // Import toast
+import Api from "./Api.js";
+import { FaCheckCircle, FaSpinner, FaStar } from "react-icons/fa"; // Import star icon
+import {toast} from "react-toastify";
 
 const FeedbackForm = ({ toggleFeedback }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
+    name: "",
+    email: "",
+    message: "",
+    rating: 0, // Add rating to formData
   });
 
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false); // State to show success modal
-  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleRating = (rating) => {
+    setFormData({ ...formData, rating });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Basic form validation
     if (!formData.name) {
       toast.error("Name field is required");
@@ -36,42 +41,35 @@ const FeedbackForm = ({ toggleFeedback }) => {
       toast.error("Message field is required");
       return;
     }
-  
-    setLoading(true); // Start loading
-  
-    try {
-      // Check if feedback already exists for the provided email
-      const checkResponse = await axios.post('https://rentoora-backend-rental.onrender.com/feadback/checkFeedback', { email: formData.email });
-      if (checkResponse.data.exists) {
-        toast.error("Your feedback has already been submitted with this email.");
-        setLoading(false);
-        return; // Stop further execution if feedback exists
-      }
+    if (formData.rating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
 
-      // Proceed to submit feedback
-      const response = await axios.post('https://rentoora-backend-rental.onrender.com/feadback/sendFeadback', formData);
-      setSuccess(true); 
-      toast.success(response.data.message); 
+    setLoading(true);
+
+    try {
+      const response = await Api.post(
+        "/feadback/sendFeadback",
+        formData
+      );
+      setSuccess(true);
+      toast.success(response.data.message);
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        toast.error(error.response.data.message); 
-      } else {
-        toast.error('Failed to submit feedback'); 
-      }
+      toast.error("Your feedback has already been submitted with this email.");
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
-  
+
   const closeSuccessModal = () => {
-    setSuccess(false); 
-    toggleFeedback();  
+    setSuccess(false);
+    toggleFeedback();
   };
 
   return (
     <AnimatePresence>
       {success ? (
-        // Success Modal
         <motion.div
           className="fixed inset-0 z-50 flex justify-center items-center text-black bg-black bg-opacity-50"
           initial={{ opacity: 0 }}
@@ -96,7 +94,6 @@ const FeedbackForm = ({ toggleFeedback }) => {
           </motion.div>
         </motion.div>
       ) : (
-        // Feedback Form
         <motion.div
           className="fixed inset-0 z-50 flex justify-center items-center text-black bg-black bg-opacity-50"
           initial={{ opacity: 0 }}
@@ -110,7 +107,9 @@ const FeedbackForm = ({ toggleFeedback }) => {
             exit={{ y: -50, opacity: 0 }}
           >
             <h2 className="text-lg font-semibold">Feedback Form</h2>
-            <p className="text-sm mb-4 text-red-500 capitalize">Your feedback is valuable for us!</p>
+            <p className="text-sm mb-4 text-red-500 capitalize">
+              Your feedback is valuable for us!
+            </p>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label
@@ -163,11 +162,32 @@ const FeedbackForm = ({ toggleFeedback }) => {
                   placeholder="Write your feedback here..."
                 ></textarea>
               </div>
+
+              {/* Rating Stars */}
+              <div className="mb-4 ">
+                <label className="block text-sm font-medium text-gray-700  mb-2">
+                  Rating <span className="text-red-600">*</span>
+                </label>
+                <div className="flex space-x-1 bg-gray-900 py-2 px-1 rounded">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <FaStar
+                      key={star}
+                      className={`cursor-pointer text-xl ${
+                        formData.rating >= star
+                          ? "text-yellow-400"
+                          : "text-gray-300"
+                      }`}
+                      onClick={() => handleRating(star)}
+                    />
+                  ))}
+                </div>
+              </div>
+
               <div className="flex justify-between">
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center"
-                  disabled={loading} // Disable button while loading
+                  disabled={loading}
                 >
                   {loading ? (
                     <>

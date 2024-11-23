@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Api from '../utils/Api.js'
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 const ReceivedOrders = () => {
   const [receivedOrders, setReceivedOrders] = useState([]);
@@ -63,20 +63,32 @@ const ReceivedOrders = () => {
       {error && <p className="text-red-500">{error}</p>}
 
       {/* Filter Buttons */}
-      <div className="mb-4">
-        <button
-          className={`px-4 py-2 mr-2 rounded-md ${filter === 'Booked' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
-          onClick={() => handleFilterChange('Booked')}
-        >
-          Booked Orders
-        </button>
-        <button
-          className={`px-4 py-2 rounded-md ${filter === 'Canceled' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
-          onClick={() => handleFilterChange('Canceled')}
-        >
-          Canceled Orders
-        </button>
+      <div className="mb-4  flex gap-4 ">
+        <div>
+          <button
+            className={`px-4 py-2 rounded-md ${
+              filter === 'Booked' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
+            }`}
+            onClick={() => handleFilterChange('Booked')}
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            Booked Orders
+          </button>
+        </div>
+
+        <div>
+          <button
+            className={`px-4 py-2 rounded-md ${
+              filter === 'Canceled' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
+            }`}
+            onClick={() => handleFilterChange('Canceled')}
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            Canceled Orders
+          </button>
+        </div>
       </div>
+  
 
       {filteredOrders.length > 0 ? (
         <div className="overflow-x-auto">
